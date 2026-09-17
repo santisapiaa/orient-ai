@@ -425,6 +425,15 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
           </button>
         </div>
 
+        {mobileMenuOpen && (
+          <button
+            className={styles.mobileMenuOverlay}
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Cerrar menú"
+            style={{ background: "none", border: "none", cursor: "default", padding: 0 }}
+          />
+        )}
+
         <div className={`${styles.navPanel} ${mobileMenuOpen ? styles.navOpen : ""}`}>
           <nav className={styles.sidebarNav}>
             <SidebarButton
@@ -471,15 +480,6 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
           </div>
         </div>
       </aside>
-
-      {mobileMenuOpen && (
-        <button
-          className={styles.mobileMenuOverlay}
-          onClick={() => setMobileMenuOpen(false)}
-          aria-label="Cerrar menú"
-          style={{ background: "none", border: "none", cursor: "default", padding: 0 }}
-        />
-      )}
 
       <main className={styles.mainContent}>
         {activeSection === "videos" && isPremium ? (
