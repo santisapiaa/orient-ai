@@ -63,9 +63,12 @@ export default function AppEstudiante() {
   const handleLocationSubmit = async (location: string) => {
     setUserLocation(location);
     // Registro anónimo para el dashboard de las universidades
-    await supabase.from('leads').insert([
+    const { error } = await supabase.from('leads').insert([
       { full_name: "Estudiante Anónimo", contact_info: "Sin registro", location: location, matched_category: userProfile.join(" + ") }
     ]);
+    if (error) {
+      console.error('No se pudo registrar el lead anónimo:', error.message);
+    }
     setActiveTab("directory");
   };
 
