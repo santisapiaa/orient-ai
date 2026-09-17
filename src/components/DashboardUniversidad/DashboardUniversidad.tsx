@@ -231,9 +231,11 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
   const [recentLeads, setRecentLeads] = useState<LeadRow[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(true);
   const [updatingPremium, setUpdatingPremium] = useState(false);
+  const [claimReloadKey, setClaimReloadKey] = useState(0);
 
   useEffect(() => {
     async function loadMyUniversity() {
+      setLoadingUniversity(true);
       const { data } = await supabase
         .from("universities")
         .select("id, name, is_premium")
@@ -243,7 +245,7 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
       setLoadingUniversity(false);
     }
     loadMyUniversity();
-  }, [userId]);
+  }, [userId, claimReloadKey]);
 
   useEffect(() => {
     if (!myUniversity) return;
@@ -293,14 +295,10 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
 
   if (!myUniversity) {
     return (
-      <FullScreenMessage>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
-          <p style={{ maxWidth: "24rem" }}>Tu cuenta todavía no está vinculada a ninguna universidad.</p>
-          <button onClick={onSignOut} style={{ color: "#2563eb", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
-            Cerrar sesión
-          </button>
-        </div>
-      </FullScreenMessage>
+      <ClaimUniversityView
+        onClaimed={() => setClaimReloadKey((k) => k + 1)}
+        onSignOut={onSignOut}
+      />
     );
   }
 
@@ -357,6 +355,91 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
         )}
       </main>
     </div>
+  );
+}
+
+// --- Reclamar universidad (cuenta ya autenticada, pero sin universidad asociada) ---
+
+function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; onSignOut: () => void }) {
+  const [unclaimed, setUnclaimed] = useState<UnclaimedUniversity[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [selectedToClaim, setSelectedToClaim] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("universities")
+      .select("id, name")
+      .is("owner_user_id", null)
+      .order("name")
+      .then(({ data }) => {
+        setUnclaimed(data ?? []);
+        setLoadingList(false);
+      });
+  }, []);
+
+  const handleClaim = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!selectedToClaim) {
+      setError("Elegí qué universidad vas a administrar.");
+      return;
+    }
+    setError(null);
+    setSubmitting(true);
+    const { error: claimError } = await supabase.rpc("claim_university", { target_id: selectedToClaim });
+    setSubmitting(false);
+    if (claimError) {
+      setError(claimError.message);
+      return;
+    }
+    onClaimed();
+  };
+
+  return (
+    <FullScreenMessage>
+      <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem", width: "100%", maxWidth: "24rem", boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", textAlign: "left" }}>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#1e293b", marginBottom: "0.5rem" }}>Reclamá tu universidad</h2>
+        <p style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+          Tu cuenta todavía no está vinculada a ninguna universidad. Elegí cuál administrás para ver su panel.
+        </p>
+
+        {loadingList ? (
+          <p style={{ color: "#64748b", fontSize: "0.875rem" }}>Cargando universidades disponibles...</p>
+        ) : unclaimed.length === 0 ? (
+          <p style={{ color: "#64748b", fontSize: "0.875rem" }}>No quedan universidades sin reclamar. Si la tuya ya fue reclamada por error, escribinos.</p>
+        ) : (
+          <form onSubmit={handleClaim} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <select
+              id="claim-university"
+              required
+              value={selectedToClaim}
+              onChange={(e) => setSelectedToClaim(e.target.value)}
+              style={inputStyle}
+            >
+              <option value="">Elegí tu universidad...</option>
+              {unclaimed.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+
+            {error && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              style={{ backgroundColor: "#0f172a", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}
+            >
+              {submitting ? "Reclamando..." : "Reclamar universidad"}
+            </button>
+          </form>
+        )}
+
+        <button onClick={onSignOut} style={{ marginTop: "1.5rem", color: "#94a3b8", background: "none", border: "none", cursor: "pointer", fontSize: "0.8rem", textDecoration: "underline", padding: 0 }}>
+          Cerrar sesión
+        </button>
+      </div>
+    </FullScreenMessage>
   );
 }
 
