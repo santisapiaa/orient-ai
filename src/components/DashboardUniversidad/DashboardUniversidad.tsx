@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, type CSSProperties, type FormEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -152,9 +153,10 @@ function AuthView() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f8fafc", padding: "1rem" }}>
       <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem", width: "100%", maxWidth: "24rem", boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)", border: "1px solid #e2e8f0" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e293b", marginBottom: "0.25rem" }}>
-          OrientAI <span style={{ fontWeight: "normal", fontSize: "0.875rem", color: "#64748b" }}>B2B</span>
-        </h1>
+        <Image src="/logo-horizontal-navy.png" alt="OrientAI" width={900} height={347} style={{ height: "1.75rem", width: "auto", marginBottom: "1rem" }} />
+        <p style={{ color: "#94a3b8", fontSize: "0.7rem", fontWeight: "bold", letterSpacing: "0.05em", marginBottom: "0.25rem" }}>
+          PANEL B2B
+        </p>
         <p style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
           {mode === "login" ? "Iniciá sesión con tu cuenta de universidad." : "Creá una cuenta y reclamá tu universidad."}
         </p>
@@ -292,7 +294,12 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
     <div className={styles.dashboardContainer}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <h1 className={styles.sidebarTitle}>OrientAI <span style={{ fontSize: "0.875rem", color: "white", fontWeight: "normal" }}>B2B</span></h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ width: "2rem", height: "2rem", borderRadius: "9999px", backgroundColor: "white", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Image src="/icon-navy.png" alt="" width={22} height={20} />
+            </span>
+            <h1 className={styles.sidebarTitle}>OrientAI <span style={{ fontSize: "0.875rem", color: "white", fontWeight: "normal" }}>B2B</span></h1>
+          </div>
           <p className={styles.sidebarSubtitle}>{myUniversity.name}</p>
         </div>
 

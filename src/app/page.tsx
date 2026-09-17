@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -5,12 +6,14 @@ export default function Home() {
     <div className="min-h-screen bg-[#F6F2EA] text-[#1B2A4C]">
       {/* Header */}
       <header className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-        <div className="leading-none">
-          <span className="text-2xl font-extrabold tracking-tight">OrientAI</span>
-          <span className="block text-[0.6rem] font-bold tracking-[0.2em] text-[#2AAE8A] mt-0.5">
-            ORIENTACIÓN VOCACIONAL
-          </span>
-        </div>
+        <Image
+          src="/logo-horizontal-navy.png"
+          alt="OrientAI — Orientación Vocacional"
+          width={900}
+          height={347}
+          priority
+          className="h-10 w-auto"
+        />
         <nav className="hidden sm:flex items-center gap-3 text-sm font-semibold">
           <Link href="/estudiantes" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
             Soy estudiante

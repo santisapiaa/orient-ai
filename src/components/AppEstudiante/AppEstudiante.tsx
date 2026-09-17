@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -87,7 +88,12 @@ export default function AppEstudiante() {
         <div className={styles.notch}></div>
 
         <div className={styles.header}>
-          <h1 className={styles.headerTitle}>OrientAI</h1>
+          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+            <span style={{width: '1.75rem', height: '1.75rem', borderRadius: '9999px', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
+              <Image src="/icon-navy.png" alt="" width={20} height={18} />
+            </span>
+            <h1 className={styles.headerTitle}>OrientAI</h1>
+          </div>
           <Link href="/" className={styles.headerLink}>Salir</Link>
         </div>
 
