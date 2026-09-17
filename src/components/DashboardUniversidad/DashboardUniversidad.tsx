@@ -117,6 +117,9 @@ function AuthView() {
   const [password, setPassword] = useState("");
   const [unclaimed, setUnclaimed] = useState<UnclaimedUniversity[]>([]);
   const [selectedToClaim, setSelectedToClaim] = useState("");
+  const [creatingNew, setCreatingNew] = useState(false);
+  const [newUniName, setNewUniName] = useState("");
+  const [newUniCity, setNewUniCity] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -151,7 +154,12 @@ function AuthView() {
     setError(null);
     setInfo(null);
 
-    if (!selectedToClaim) {
+    if (creatingNew) {
+      if (!newUniName.trim() || !newUniCity.trim()) {
+        setError("Completá el nombre y la ciudad de tu universidad.");
+        return;
+      }
+    } else if (!selectedToClaim) {
       setError("Elegí qué universidad vas a administrar.");
       return;
     }
@@ -166,14 +174,17 @@ function AuthView() {
     }
 
     if (!data.session) {
-      setInfo("Cuenta creada. Revisá tu email para confirmarla y después iniciá sesión para reclamar tu universidad.");
+      setInfo("Cuenta creada. Revisá tu email para confirmarla y después iniciá sesión para terminar de vincular tu universidad.");
       setSubmitting(false);
       return;
     }
 
-    const { error: claimError } = await supabase.rpc("claim_university", { target_id: selectedToClaim });
+    const { error: linkError } = creatingNew
+      ? await supabase.rpc("create_university", { new_name: newUniName.trim(), new_city: newUniCity.trim() })
+      : await supabase.rpc("claim_university", { target_id: selectedToClaim });
+
     setSubmitting(false);
-    if (claimError) setError(claimError.message);
+    if (linkError) setError(linkError.message);
   };
 
   return (
@@ -184,7 +195,7 @@ function AuthView() {
           PANEL B2B
         </p>
         <p style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
-          {mode === "login" ? "Iniciá sesión con tu cuenta de universidad." : "Creá una cuenta y reclamá tu universidad."}
+          {mode === "login" ? "Iniciá sesión con tu cuenta de universidad." : "Creá una cuenta y sumá tu universidad."}
         </p>
 
         <form onSubmit={mode === "login" ? handleLogin : handleSignup} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -208,19 +219,56 @@ function AuthView() {
             style={inputStyle}
           />
 
-          {mode === "signup" && (
-            <select
-              id="dashboard-university"
-              required
-              value={selectedToClaim}
-              onChange={(e) => setSelectedToClaim(e.target.value)}
-              style={inputStyle}
-            >
-              <option value="">Elegí tu universidad...</option>
-              {unclaimed.map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
-              ))}
-            </select>
+          {mode === "signup" && !creatingNew && (
+            <>
+              <select
+                id="dashboard-university"
+                required
+                value={selectedToClaim}
+                onChange={(e) => setSelectedToClaim(e.target.value)}
+                style={inputStyle}
+              >
+                <option value="">Elegí tu universidad...</option>
+                {unclaimed.map((u) => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => { setCreatingNew(true); setError(null); }}
+                style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", padding: 0, textAlign: "left" }}
+              >
+                ¿Tu universidad no está en la lista? Creála
+              </button>
+            </>
+          )}
+
+          {mode === "signup" && creatingNew && (
+            <>
+              <input
+                id="new-university-name"
+                required
+                placeholder="Nombre de tu universidad"
+                value={newUniName}
+                onChange={(e) => setNewUniName(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                id="new-university-city"
+                required
+                placeholder="Ciudad"
+                value={newUniCity}
+                onChange={(e) => setNewUniCity(e.target.value)}
+                style={inputStyle}
+              />
+              <button
+                type="button"
+                onClick={() => { setCreatingNew(false); setError(null); }}
+                style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", padding: 0, textAlign: "left" }}
+              >
+                ← Elegir de la lista en vez de crear una nueva
+              </button>
+            </>
           )}
 
           {error && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
@@ -231,7 +279,7 @@ function AuthView() {
             disabled={submitting}
             style={{ backgroundColor: "#1B2A4C", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}
           >
-            {submitting ? "Un momento..." : mode === "login" ? "Iniciar sesión" : "Crear cuenta y reclamar"}
+            {submitting ? "Un momento..." : mode === "login" ? "Iniciar sesión" : creatingNew ? "Crear cuenta y universidad" : "Crear cuenta y reclamar"}
           </button>
         </form>
 
@@ -239,7 +287,7 @@ function AuthView() {
           onClick={() => switchMode(mode === "login" ? "signup" : "login")}
           style={{ marginTop: "1rem", background: "none", border: "none", color: "#2AAE8A", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
         >
-          {mode === "login" ? "¿Tu universidad todavía no tiene cuenta? Reclamala acá" : "¿Ya tenés cuenta? Iniciá sesión"}
+          {mode === "login" ? "¿Tu universidad todavía no tiene cuenta? Sumala acá" : "¿Ya tenés cuenta? Iniciá sesión"}
         </button>
 
         <div style={{ marginTop: "1.5rem", borderTop: "1px solid #f1f5f9", paddingTop: "1rem" }}>
@@ -413,6 +461,9 @@ function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; 
   const [unclaimed, setUnclaimed] = useState<UnclaimedUniversity[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [selectedToClaim, setSelectedToClaim] = useState("");
+  const [creatingNew, setCreatingNew] = useState(false);
+  const [newUniName, setNewUniName] = useState("");
+  const [newUniCity, setNewUniCity] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -428,18 +479,28 @@ function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; 
       });
   }, []);
 
-  const handleClaim = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!selectedToClaim) {
+    setError(null);
+
+    if (creatingNew) {
+      if (!newUniName.trim() || !newUniCity.trim()) {
+        setError("Completá el nombre y la ciudad de tu universidad.");
+        return;
+      }
+    } else if (!selectedToClaim) {
       setError("Elegí qué universidad vas a administrar.");
       return;
     }
-    setError(null);
+
     setSubmitting(true);
-    const { error: claimError } = await supabase.rpc("claim_university", { target_id: selectedToClaim });
+    const { error: linkError } = creatingNew
+      ? await supabase.rpc("create_university", { new_name: newUniName.trim(), new_city: newUniCity.trim() })
+      : await supabase.rpc("claim_university", { target_id: selectedToClaim });
     setSubmitting(false);
-    if (claimError) {
-      setError(claimError.message);
+
+    if (linkError) {
+      setError(linkError.message);
       return;
     }
     onClaimed();
@@ -448,31 +509,72 @@ function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; 
   return (
     <FullScreenMessage>
       <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem", width: "100%", maxWidth: "24rem", boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", textAlign: "left" }}>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#1e293b", marginBottom: "0.5rem" }}>Reclamá tu universidad</h2>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#1e293b", marginBottom: "0.5rem" }}>
+          {creatingNew ? "Creá tu universidad" : "Sumá tu universidad"}
+        </h2>
         <p style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
-          Tu cuenta todavía no está vinculada a ninguna universidad. Elegí cuál administrás para ver su panel.
+          Tu cuenta todavía no está vinculada a ninguna universidad. {creatingNew ? "Completá los datos básicos para darla de alta." : "Elegí cuál administrás para ver su panel."}
         </p>
 
-        {loadingList ? (
+        {loadingList && !creatingNew ? (
           <p style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b", fontSize: "0.875rem" }}>
             <Spinner size={16} color="#64748b" /> Cargando universidades disponibles...
           </p>
-        ) : unclaimed.length === 0 ? (
-          <p style={{ color: "#64748b", fontSize: "0.875rem" }}>No quedan universidades sin reclamar. Si la tuya ya fue reclamada por error, escribinos.</p>
         ) : (
-          <form onSubmit={handleClaim} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            <select
-              id="claim-university"
-              required
-              value={selectedToClaim}
-              onChange={(e) => setSelectedToClaim(e.target.value)}
-              style={inputStyle}
-            >
-              <option value="">Elegí tu universidad...</option>
-              {unclaimed.map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
-              ))}
-            </select>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {!creatingNew ? (
+              <>
+                {unclaimed.length > 0 && (
+                  <select
+                    id="claim-university"
+                    required
+                    value={selectedToClaim}
+                    onChange={(e) => setSelectedToClaim(e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option value="">Elegí tu universidad...</option>
+                    {unclaimed.map((u) => (
+                      <option key={u.id} value={u.id}>{u.name}</option>
+                    ))}
+                  </select>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { setCreatingNew(true); setError(null); }}
+                  style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", padding: 0, textAlign: "left" }}
+                >
+                  {unclaimed.length === 0 ? "No quedan universidades sin reclamar — creá la tuya" : "¿Tu universidad no está en la lista? Creála"}
+                </button>
+              </>
+            ) : (
+              <>
+                <input
+                  id="new-university-name-claim"
+                  required
+                  placeholder="Nombre de tu universidad"
+                  value={newUniName}
+                  onChange={(e) => setNewUniName(e.target.value)}
+                  style={inputStyle}
+                />
+                <input
+                  id="new-university-city-claim"
+                  required
+                  placeholder="Ciudad"
+                  value={newUniCity}
+                  onChange={(e) => setNewUniCity(e.target.value)}
+                  style={inputStyle}
+                />
+                {unclaimed.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => { setCreatingNew(false); setError(null); }}
+                    style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline", padding: 0, textAlign: "left" }}
+                  >
+                    ← Elegir de la lista en vez de crear una nueva
+                  </button>
+                )}
+              </>
+            )}
 
             {error && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
 
@@ -481,7 +583,7 @@ function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; 
               disabled={submitting}
               style={{ backgroundColor: "#1B2A4C", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}
             >
-              {submitting ? "Reclamando..." : "Reclamar universidad"}
+              {submitting ? "Un momento..." : creatingNew ? "Crear universidad" : "Reclamar universidad"}
             </button>
           </form>
         )}
@@ -869,13 +971,23 @@ function PerfilPanel({
   );
 }
 
+const CAREER_CATEGORIES = ["Negocios", "Tecnología", "Salud", "Ciencias Sociales", "Arte y Diseño"];
+
 function CareersPanel({ universityId }: { universityId: string }) {
   const [careers, setCareers] = useState<CareerRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [errorId, setErrorId] = useState<string | null>(null);
+
+  const [newCareerName, setNewCareerName] = useState("");
+  const [newCareerCategory, setNewCareerCategory] = useState(CAREER_CATEGORIES[0]);
+  const [newCareerDuration, setNewCareerDuration] = useState("");
+  const [newCareerBadge, setNewCareerBadge] = useState("Grado");
+  const [addingCareer, setAddingCareer] = useState(false);
+  const [addCareerError, setAddCareerError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -898,7 +1010,36 @@ function CareersPanel({ universityId }: { universityId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [universityId]);
+  }, [universityId, reloadKey]);
+
+  const handleAddCareer = async (e: FormEvent) => {
+    e.preventDefault();
+    setAddCareerError(null);
+
+    if (!newCareerName.trim() || !newCareerDuration.trim()) {
+      setAddCareerError("Completá el nombre y la duración de la carrera.");
+      return;
+    }
+
+    setAddingCareer(true);
+    const { error } = await supabase.rpc("create_career", {
+      target_university_id: universityId,
+      new_name: newCareerName.trim(),
+      new_category: newCareerCategory,
+      new_duration: newCareerDuration.trim(),
+      new_badge: newCareerBadge,
+    });
+    setAddingCareer(false);
+
+    if (error) {
+      setAddCareerError(error.message);
+      return;
+    }
+
+    setNewCareerName("");
+    setNewCareerDuration("");
+    setReloadKey((k) => k + 1);
+  };
 
   const handleSave = async (careerId: string) => {
     setErrorId(null);
@@ -927,6 +1068,50 @@ function CareersPanel({ universityId }: { universityId: string }) {
       <p style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
         Pegá el link al PDF del plan de estudios de cada carrera (puede ser de tu propia web o de Google Drive). Los estudiantes lo van a poder descargar desde &quot;Plan de Estudios&quot; en la app.
       </p>
+
+      <form onSubmit={handleAddCareer} className={styles.dataTableContainer} style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <p style={{ margin: 0, fontWeight: "bold", color: "#1e293b", fontSize: "0.875rem" }}>+ Agregar carrera</p>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <input
+            placeholder="Nombre de la carrera"
+            value={newCareerName}
+            onChange={(e) => setNewCareerName(e.target.value)}
+            style={{ ...inputStyle, flex: 2, minWidth: "12rem" }}
+          />
+          <select
+            value={newCareerCategory}
+            onChange={(e) => setNewCareerCategory(e.target.value)}
+            style={{ ...inputStyle, flex: 1, minWidth: "10rem" }}
+          >
+            {CAREER_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <input
+            placeholder="Duración (ej: 4 años)"
+            value={newCareerDuration}
+            onChange={(e) => setNewCareerDuration(e.target.value)}
+            style={{ ...inputStyle, flex: 1, minWidth: "8rem" }}
+          />
+          <select
+            value={newCareerBadge}
+            onChange={(e) => setNewCareerBadge(e.target.value)}
+            style={{ ...inputStyle, flex: 1, minWidth: "8rem" }}
+          >
+            <option value="Grado">Grado</option>
+            <option value="Pregrado">Pregrado</option>
+            <option value="Posgrado">Posgrado</option>
+          </select>
+        </div>
+        {addCareerError && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>{addCareerError}</p>}
+        <button
+          type="submit"
+          disabled={addingCareer}
+          style={{ backgroundColor: "#1B2A4C", color: "white", padding: "0.6rem 1.25rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: addingCareer ? 0.7 : 1, alignSelf: "flex-start" }}
+        >
+          {addingCareer ? "Agregando..." : "Agregar carrera"}
+        </button>
+      </form>
 
       {loading ? (
         <p style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b" }}>
