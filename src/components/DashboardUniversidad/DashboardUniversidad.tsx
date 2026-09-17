@@ -16,6 +16,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import Spinner from "@/components/Spinner";
 import styles from "./DashboardUniversidad.module.css";
 
 type MyUniversity = {
@@ -79,7 +80,13 @@ export default function DashboardUniversidad() {
   }, []);
 
   if (authLoading) {
-    return <FullScreenMessage>Cargando...</FullScreenMessage>;
+    return (
+      <FullScreenMessage>
+        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <Spinner size={20} color="#64748b" /> Cargando...
+        </span>
+      </FullScreenMessage>
+    );
   }
 
   if (!session) {
@@ -295,7 +302,13 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
   }, [myUniversity]);
 
   if (loadingUniversity) {
-    return <FullScreenMessage>Cargando tu universidad...</FullScreenMessage>;
+    return (
+      <FullScreenMessage>
+        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <Spinner size={20} color="#64748b" /> Cargando tu universidad...
+        </span>
+      </FullScreenMessage>
+    );
   }
 
   if (!myUniversity) {
@@ -441,7 +454,9 @@ function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; 
         </p>
 
         {loadingList ? (
-          <p style={{ color: "#64748b", fontSize: "0.875rem" }}>Cargando universidades disponibles...</p>
+          <p style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b", fontSize: "0.875rem" }}>
+            <Spinner size={16} color="#64748b" /> Cargando universidades disponibles...
+          </p>
         ) : unclaimed.length === 0 ? (
           <p style={{ color: "#64748b", fontSize: "0.875rem" }}>No quedan universidades sin reclamar. Si la tuya ya fue reclamada por error, escribinos.</p>
         ) : (
@@ -543,7 +558,9 @@ function PanelGeneral({
           </div>
 
           {loadingLeads ? (
-            <div style={{ padding: "1.5rem", color: "#64748b" }}>Cargando leads...</div>
+            <div style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b" }}>
+              <Spinner size={16} color="#64748b" /> Cargando leads...
+            </div>
           ) : recentLeads.length === 0 ? (
             <div style={{ padding: "1.5rem", color: "#64748b" }}>
               Todavía no llegaron leads reales para esta universidad. Van a aparecer acá apenas un estudiante toque &quot;Contactar Admisiones&quot; en la app.
@@ -668,7 +685,9 @@ function VideosPanel({ universityId }: { universityId: string }) {
       </form>
 
       {loading ? (
-        <p style={{ color: "#64748b" }}>Cargando videos...</p>
+        <p style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b" }}>
+          <Spinner size={16} color="#64748b" /> Cargando videos...
+        </p>
       ) : videos.length === 0 ? (
         <p style={{ color: "#64748b" }}>Todavía no cargaste ningún video.</p>
       ) : (
@@ -737,7 +756,9 @@ function LeadsPanel({ universityId }: { universityId: string }) {
         </div>
 
         {loading ? (
-          <div style={{ padding: "1.5rem", color: "#64748b" }}>Cargando leads...</div>
+          <div style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b" }}>
+            <Spinner size={16} color="#64748b" /> Cargando leads...
+          </div>
         ) : leads.length === 0 ? (
           <div style={{ padding: "1.5rem", color: "#64748b" }}>
             Todavía no llegaron leads reales para esta universidad. Van a aparecer acá apenas un estudiante toque &quot;Contactar Admisiones&quot; en la app.
@@ -908,7 +929,9 @@ function CareersPanel({ universityId }: { universityId: string }) {
       </p>
 
       {loading ? (
-        <p style={{ color: "#64748b" }}>Cargando carreras...</p>
+        <p style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b" }}>
+          <Spinner size={16} color="#64748b" /> Cargando carreras...
+        </p>
       ) : careers.length === 0 ? (
         <p style={{ color: "#64748b" }}>Todavía no hay carreras cargadas para tu universidad.</p>
       ) : (

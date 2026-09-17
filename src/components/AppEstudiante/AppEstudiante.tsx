@@ -26,6 +26,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import Spinner from "@/components/Spinner";
 import styles from "./AppEstudiante.module.css";
 
 type Career = {
@@ -309,7 +310,8 @@ function LocationView({ onSubmit }: { onSubmit: (location: string) => void }) {
 
       <div style={{flex: 1, width: '100%', position: 'relative', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
         {loading ? (
-          <div style={{color: '#1B2A4C', fontWeight: 'bold', fontSize: '1.25rem'}}>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', color: '#1B2A4C', fontWeight: 'bold', fontSize: '1.25rem'}}>
+            <Spinner size={28} color="#1B2A4C" />
             Buscando...
           </div>
         ) : (
@@ -444,7 +446,12 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
   };
 
   if (loading) {
-    return <div className={styles.viewContainer} style={{justifyContent: 'center', alignItems: 'center'}}>Buscando matches en la base de datos...</div>;
+    return (
+      <div className={styles.viewContainer} style={{justifyContent: 'center', alignItems: 'center', gap: '0.75rem', color: '#1B2A4C'}}>
+        <Spinner size={28} color="#1B2A4C" />
+        Buscando matches en la base de datos...
+      </div>
+    );
   }
 
   if (universities.length === 0) {
