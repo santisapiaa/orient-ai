@@ -13,6 +13,8 @@ import {
   MessageCircle,
   Star,
   FileText,
+  Menu,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -308,6 +310,7 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
   const [recentLeads, setRecentLeads] = useState<LeadRow[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(true);
   const [claimReloadKey, setClaimReloadKey] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function loadMyUniversity() {
@@ -374,21 +377,30 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
     <div className={styles.dashboardContainer}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span style={{ width: "2rem", height: "2rem", borderRadius: "9999px", backgroundColor: "white", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Image src="/icon-navy.png" alt="" width={22} height={20} />
-            </span>
-            <h1 className={styles.sidebarTitle}>OrientAI <span style={{ fontSize: "0.875rem", color: "white", fontWeight: "normal" }}>B2B</span></h1>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ width: "2rem", height: "2rem", borderRadius: "9999px", backgroundColor: "white", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Image src="/icon-navy.png" alt="" width={22} height={20} />
+              </span>
+              <h1 className={styles.sidebarTitle}>OrientAI <span style={{ fontSize: "0.875rem", color: "white", fontWeight: "normal" }}>B2B</span></h1>
+            </div>
+            <p className={styles.sidebarSubtitle}>{myUniversity.name}</p>
           </div>
-          <p className={styles.sidebarSubtitle}>{myUniversity.name}</p>
+          <button
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            className={styles.hamburgerButton}
+            aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
 
-        <nav className={styles.sidebarNav}>
+        <nav className={`${styles.sidebarNav} ${mobileMenuOpen ? styles.navOpen : ""}`}>
           <SidebarButton
             icon={LayoutDashboard}
             text="Panel General"
             active={activeSection === "panel"}
-            onClick={() => setActiveSection("panel")}
+            onClick={() => { setActiveSection("panel"); setMobileMenuOpen(false); }}
           />
           <SidebarButton
             icon={Users}
@@ -396,7 +408,7 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             active={activeSection === "leads"}
             disabled={!isPremium}
             isPremiumOnly={!isPremium}
-            onClick={() => isPremium && setActiveSection("leads")}
+            onClick={() => { if (isPremium) { setActiveSection("leads"); setMobileMenuOpen(false); } }}
           />
           <SidebarButton
             icon={Video}
@@ -404,23 +416,23 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             active={activeSection === "videos"}
             disabled={!isPremium}
             isPremiumOnly={!isPremium}
-            onClick={() => isPremium && setActiveSection("videos")}
+            onClick={() => { if (isPremium) { setActiveSection("videos"); setMobileMenuOpen(false); } }}
           />
           <SidebarButton
             icon={FileText}
             text="Planes de Estudio"
             active={activeSection === "carreras"}
-            onClick={() => setActiveSection("carreras")}
+            onClick={() => { setActiveSection("carreras"); setMobileMenuOpen(false); }}
           />
           <SidebarButton
             icon={Settings}
             text="Configurar Perfil"
             active={activeSection === "perfil"}
-            onClick={() => setActiveSection("perfil")}
+            onClick={() => { setActiveSection("perfil"); setMobileMenuOpen(false); }}
           />
         </nav>
 
-        <div className={styles.sidebarFooter} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <div className={`${styles.sidebarFooter} ${mobileMenuOpen ? styles.navOpen : ""}`} style={{ flexDirection: "column", gap: "0.5rem" }}>
           <button onClick={onSignOut} style={{ color: "#94a3b8", background: "none", border: "none", textAlign: "left", cursor: "pointer", fontSize: "0.875rem", padding: 0 }}>
             Cerrar sesión
           </button>

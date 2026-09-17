@@ -30,6 +30,28 @@
 
 .sidebarHeader {
   padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hamburgerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.25rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .hamburgerButton {
+    display: none;
+  }
 }
 
 .sidebarTitle {
@@ -48,10 +70,20 @@
 .sidebarNav {
   flex: 1;
   padding: 0 1rem;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 1rem;
+}
+
+.sidebarNav.navOpen {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .sidebarNav {
+    display: flex;
+  }
 }
 
 .navItem {
@@ -89,9 +121,20 @@
 }
 
 .sidebarFooter {
+  display: none;
   padding: 1rem;
   margin-top: auto;
   border-top: 1px solid #1e293b;
+}
+
+.sidebarFooter.navOpen {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .sidebarFooter {
+    display: flex;
+  }
 }
 
 .mainContent {
