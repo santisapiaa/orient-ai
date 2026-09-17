@@ -1,9 +1,40 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import styles from "./AppEstudiante.module.css";
+
+type Career = {
+  id: string;
+  name: string;
+  category: string;
+  duration: string;
+  badge: string;
+  market_demand: string | null;
+  avg_salary: string | null;
+  work_mode: string | null;
+};
+
+type University = {
+  id: string;
+  name: string;
+  city: string;
+  is_premium: boolean;
+  description: string | null;
+  video_text: string | null;
+  author_handle: string | null;
+  careers: Career[];
+};
+
+type MicroCase = {
+  career: string;
+  text: string;
+  optionA: string;
+  optionB: string;
+  correct: "A" | "B";
+  explanation: string;
+};
 
 // 1. Ampliamos las preguntas a 10 para hacer el test más específico
 const QUESTIONS = [
@@ -85,45 +116,45 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
 
   const currentQuestion = QUESTIONS[currentIndex];
 
-  const handleDragEnd = (event: any, info: any) => {
-    // Si se desliza a la derecha (Me Gusta) sumamos 1 punto
-    if (info.offset.x > 100) {
-      const category = currentQuestion.category;
-      setScores(prev => ({ ...prev, [category]: prev[category] + 1 }));
-      setLeaveX(1000);
-      nextCard();
-    } 
-    // Si se desliza a la izquierda (Paso) no sumamos nada
-    else if (info.offset.x < -100) {
-      setLeaveX(-1000);
-      nextCard();
-    }
+  const handleDragEnd = (
+    event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    const liked = info.offset.x > 100;
+    const passed = info.offset.x < -100;
+    if (!liked && !passed) return;
+
+    setLeaveX(liked ? 1000 : -1000);
+
+    // Se calcula el puntaje actualizado de forma local en vez de leer el
+    // estado `scores`, ya que este todavía no se actualizó cuando se
+    // procesa la última carta (setState es asíncrono).
+    const updatedScores = liked
+      ? { ...scores, [currentQuestion.category]: scores[currentQuestion.category] + 1 }
+      : scores;
+
+    if (liked) setScores(updatedScores);
+
+    nextCard(updatedScores);
   };
 
-  const nextCard = () => {
+  const nextCard = (finalScores: Record<string, number>) => {
     setTimeout(() => {
       if (currentIndex < QUESTIONS.length - 1) {
         setCurrentIndex(currentIndex + 1);
         setLeaveX(0);
       } else {
-        // 2. Nueva lógica: Calcular los 2 perfiles con mayor puntaje
-        const finalScores = { ...scores };
-        
-        // Si la última carta fue un like, se lo sumamos a los puntajes finales
-        if (leaveX > 0) {
-          finalScores[currentQuestion.category] += 1;
-        }
-
+        // Calcular los 2 perfiles con mayor puntaje
         const sortedCategories = Object.entries(finalScores)
           .map(([cat, score]) => ({ cat, score }))
           .sort((a, b) => b.score - a.score);
-        
+
         // Agarramos las 2 categorías principales que tengan al menos 1 punto
         let topCats = sortedCategories.filter(c => c.score > 0).slice(0, 2).map(c => c.cat);
-        
+
         // Fallback por si le dio "Paso" a absolutamente todo
         if (topCats.length === 0) topCats = ["Ciencias Sociales", "Negocios"];
-        
+
         onComplete(topCats);
       }
     }, 200);
@@ -238,9 +269,9 @@ function LocationView({ onSubmit }: { onSubmit: (location: string) => void }) {
 }
 
 function DirectoryView({ profile, location }: { profile: string[], location: string }) {
-  const [universities, setUniversities] = useState<any[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCase, setActiveCase] = useState<any>(null);
+  const [activeCase, setActiveCase] = useState<MicroCase | null>(null);
   const [caseResult, setCaseResult] = useState<'A' | 'B' | null>(null);
 
   useEffect(() => {
@@ -263,7 +294,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
 
   const openMicroCase = (careerName: string, category: string) => {
     setCaseResult(null);
-    let scenario = { text: "", optionA: "", optionB: "", correct: "", explanation: "" };
+    let scenario: Omit<MicroCase, "career"> = { text: "", optionA: "", optionB: "", correct: "A", explanation: "" };
     
     if(category === "Tecnología") {
       scenario = {
@@ -338,7 +369,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
           </div>
           
           <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem'}}>
-            {uni.careers.map((career: any) => {
+            {uni.careers.map((career) => {
               return (
               <div key={career.id} style={{borderTop: '1px solid #CFF7EA', paddingTop: '0.75rem'}}>
                 <h4 style={{fontSize: '0.875rem', fontWeight: '800', color: '#124D41', margin: '0 0 0.5rem 0'}}>{career.name}</h4>
