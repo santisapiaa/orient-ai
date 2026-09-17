@@ -84,10 +84,38 @@ const QUESTIONS: { id: number; text: string; icon: LucideIcon; category: string 
   { id: 10, text: "Dirigir cine, fotografía o componer música", icon: Clapperboard, category: "Arte y Diseño" },
 ];
 
+const FLOW_STORAGE_KEY = "orientai_student_flow";
+
 export default function AppEstudiante() {
   const [activeTab, setActiveTab] = useState<"test" | "results" | "location" | "directory">("test");
   const [userProfile, setUserProfile] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<string>("Buenos Aires");
+  const [hydrated, setHydrated] = useState(false);
+
+  // Restaurar donde se habia quedado el estudiante (si hay algo guardado)
+  // despues de la hidratacion, para no perder el progreso al refrescar.
+  // localStorage no existe en el server, asi que esto solo puede pasar
+  // aca (un lazy initializer rompería la hidratación de Next.js).
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(FLOW_STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (saved.activeTab) setActiveTab(saved.activeTab);
+        if (saved.userProfile) setUserProfile(saved.userProfile);
+        if (saved.userLocation) setUserLocation(saved.userLocation);
+      }
+    } catch {}
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(FLOW_STORAGE_KEY, JSON.stringify({ activeTab, userProfile, userLocation }));
+    } catch {}
+  }, [hydrated, activeTab, userProfile, userLocation]);
 
   const finishTest = (topCategories: string[]) => {
     setUserProfile(topCategories);
@@ -172,12 +200,38 @@ function videoRoleLabel(role: UniversityVideo["author_role"]) {
 
 // --- Sub-views ---
 
+const TEST_PROGRESS_KEY = "orientai_test_progress";
+
 function TestView({ onComplete }: { onComplete: (categories: string[]) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [leaveX, setLeaveX] = useState(0);
-  const [scores, setScores] = useState<Record<string, number>>({ 
-    "Negocios": 0, "Tecnología": 0, "Salud": 0, "Ciencias Sociales": 0, "Arte y Diseño": 0 
+  const [scores, setScores] = useState<Record<string, number>>({
+    "Negocios": 0, "Tecnología": 0, "Salud": 0, "Ciencias Sociales": 0, "Arte y Diseño": 0
   });
+  const [hydrated, setHydrated] = useState(false);
+
+  // Restaurar el progreso guardado (si lo hay) despues de la hidratacion,
+  // para no perder la posicion en el test si el estudiante refresca la
+  // pagina a mitad de camino.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(TEST_PROGRESS_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (typeof saved.currentIndex === "number") setCurrentIndex(saved.currentIndex);
+        if (saved.scores) setScores(saved.scores);
+      }
+    } catch {}
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(TEST_PROGRESS_KEY, JSON.stringify({ currentIndex, scores }));
+    } catch {}
+  }, [hydrated, currentIndex, scores]);
 
   const currentQuestion = QUESTIONS[currentIndex];
 
@@ -219,6 +273,10 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
 
         // Fallback por si le dio "Paso" a absolutamente todo
         if (topCats.length === 0) topCats = ["Ciencias Sociales", "Negocios"];
+
+        try {
+          window.localStorage.removeItem(TEST_PROGRESS_KEY);
+        } catch {}
 
         onComplete(topCats);
       }
