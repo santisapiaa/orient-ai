@@ -23,6 +23,7 @@ import {
   X as XIcon,
   CheckCircle2,
   XCircle,
+  Share2,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -61,6 +62,11 @@ type University = {
   university_videos: UniversityVideo[];
 };
 
+type LikedItem = {
+  text: string;
+  category: string;
+};
+
 type MicroCase = {
   career: string;
   text: string;
@@ -89,6 +95,7 @@ const FLOW_STORAGE_KEY = "orientai_student_flow";
 export default function AppEstudiante() {
   const [activeTab, setActiveTab] = useState<"test" | "results" | "location" | "directory">("test");
   const [userProfile, setUserProfile] = useState<string[]>([]);
+  const [userLikedItems, setUserLikedItems] = useState<LikedItem[]>([]);
   const [userLocation, setUserLocation] = useState<string>("Buenos Aires");
   const [hydrated, setHydrated] = useState(false);
 
@@ -104,6 +111,7 @@ export default function AppEstudiante() {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         if (saved.activeTab) setActiveTab(saved.activeTab);
         if (saved.userProfile) setUserProfile(saved.userProfile);
+        if (saved.userLikedItems) setUserLikedItems(saved.userLikedItems);
         if (saved.userLocation) setUserLocation(saved.userLocation);
       }
     } catch {}
@@ -113,12 +121,13 @@ export default function AppEstudiante() {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      window.localStorage.setItem(FLOW_STORAGE_KEY, JSON.stringify({ activeTab, userProfile, userLocation }));
+      window.localStorage.setItem(FLOW_STORAGE_KEY, JSON.stringify({ activeTab, userProfile, userLikedItems, userLocation }));
     } catch {}
-  }, [hydrated, activeTab, userProfile, userLocation]);
+  }, [hydrated, activeTab, userProfile, userLikedItems, userLocation]);
 
-  const finishTest = (topCategories: string[]) => {
+  const finishTest = (topCategories: string[], likedItems: LikedItem[]) => {
     setUserProfile(topCategories);
+    setUserLikedItems(likedItems);
     setActiveTab("results");
   };
 
@@ -151,7 +160,7 @@ export default function AppEstudiante() {
 
         <div className={styles.contentArea}>
           {activeTab === "test" && <TestView onComplete={finishTest} />}
-          {activeTab === "results" && <ResultsView profile={userProfile} onContinue={() => setActiveTab("location")} />}
+          {activeTab === "results" && <ResultsView profile={userProfile} likedItems={userLikedItems} onContinue={() => setActiveTab("location")} />}
           {activeTab === "location" && <LocationView onSubmit={handleLocationSubmit} />}
           {activeTab === "directory" && <DirectoryView profile={userProfile} location={userLocation} />}
         </div>
@@ -202,12 +211,13 @@ function videoRoleLabel(role: UniversityVideo["author_role"]) {
 
 const TEST_PROGRESS_KEY = "orientai_test_progress";
 
-function TestView({ onComplete }: { onComplete: (categories: string[]) => void }) {
+function TestView({ onComplete }: { onComplete: (categories: string[], likedItems: LikedItem[]) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [leaveX, setLeaveX] = useState(0);
   const [scores, setScores] = useState<Record<string, number>>({
     "Negocios": 0, "Tecnología": 0, "Salud": 0, "Ciencias Sociales": 0, "Arte y Diseño": 0
   });
+  const [likedItems, setLikedItems] = useState<LikedItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   // Restaurar el progreso guardado (si lo hay) despues de la hidratacion,
@@ -221,6 +231,7 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
         // eslint-disable-next-line react-hooks/set-state-in-effect
         if (typeof saved.currentIndex === "number") setCurrentIndex(saved.currentIndex);
         if (saved.scores) setScores(saved.scores);
+        if (saved.likedItems) setLikedItems(saved.likedItems);
       }
     } catch {}
     setHydrated(true);
@@ -229,9 +240,9 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
   useEffect(() => {
     if (!hydrated) return;
     try {
-      window.localStorage.setItem(TEST_PROGRESS_KEY, JSON.stringify({ currentIndex, scores }));
+      window.localStorage.setItem(TEST_PROGRESS_KEY, JSON.stringify({ currentIndex, scores, likedItems }));
     } catch {}
-  }, [hydrated, currentIndex, scores]);
+  }, [hydrated, currentIndex, scores, likedItems]);
 
   const currentQuestion = QUESTIONS[currentIndex];
 
@@ -251,13 +262,19 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
     const updatedScores = liked
       ? { ...scores, [currentQuestion.category]: scores[currentQuestion.category] + 1 }
       : scores;
+    const updatedLikedItems = liked
+      ? [...likedItems, { text: currentQuestion.text, category: currentQuestion.category }]
+      : likedItems;
 
-    if (liked) setScores(updatedScores);
+    if (liked) {
+      setScores(updatedScores);
+      setLikedItems(updatedLikedItems);
+    }
 
-    nextCard(updatedScores);
+    nextCard(updatedScores, updatedLikedItems);
   };
 
-  const nextCard = (finalScores: Record<string, number>) => {
+  const nextCard = (finalScores: Record<string, number>, finalLikedItems: LikedItem[]) => {
     setTimeout(() => {
       if (currentIndex < QUESTIONS.length - 1) {
         setCurrentIndex(currentIndex + 1);
@@ -278,7 +295,7 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
           window.localStorage.removeItem(TEST_PROGRESS_KEY);
         } catch {}
 
-        onComplete(topCats);
+        onComplete(topCats, finalLikedItems);
       }
     }, 200);
   };
@@ -321,8 +338,37 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
   );
 }
 
-function ResultsView({ profile, onContinue }: { profile: string[], onContinue: () => void }) {
+function ResultsView({ profile, likedItems, onContinue }: { profile: string[], likedItems: LikedItem[], onContinue: () => void }) {
   const profileText = profile.join(" y ");
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
+
+  // Un ejemplo de lo que le gustó al estudiante por cada categoría top,
+  // para que el resultado no sea solo un nombre de categoría pelado.
+  const reasons = profile
+    .map((cat) => likedItems.find((item) => item.category === cat)?.text)
+    .filter((text): text is string => Boolean(text));
+
+  const handleShare = async () => {
+    const shareText = `Hice el test de OrientAI y mi perfil es ${profileText} 🎯 ¡Probalo vos!`;
+    const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/estudiantes` : "";
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "Mi perfil vocacional en OrientAI", text: shareText, url: shareUrl });
+      } catch {
+        // el estudiante cerró el panel de compartir, no hacemos nada
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+      setShareStatus("¡Copiado! Pegalo donde quieras compartirlo.");
+    } catch {
+      setShareStatus("No pudimos copiar el link, probá de nuevo.");
+    }
+    setTimeout(() => setShareStatus(null), 2500);
+  };
 
   return (
     <div className={`${styles.viewContainer} ${styles.resultsView}`}>
@@ -335,7 +381,20 @@ function ResultsView({ profile, onContinue }: { profile: string[], onContinue: (
           <div style={{marginBottom: '1rem', display: 'flex', justifyContent: 'center'}}><Target size={60} strokeWidth={1.5} /></div>
           <p style={{fontSize: '1rem', fontWeight: '500', margin: '0 0 0.5rem 0'}}>Eres un mix perfecto de:</p>
           <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#fde047', margin: 0}}>{profileText}</h3>
+          {reasons.length > 0 && (
+            <p style={{fontSize: '0.8rem', opacity: 0.85, marginTop: '0.75rem', lineHeight: 1.4}}>
+              Te gustó {reasons.join(" y ")}.
+            </p>
+          )}
         </motion.div>
+
+        <button
+          onClick={handleShare}
+          style={{marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '0.6rem 1.25rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
+        >
+          <Share2 size={16} /> Compartir resultado
+        </button>
+        {shareStatus && <p style={{fontSize: '0.7rem', marginTop: '0.5rem', opacity: 0.85}}>{shareStatus}</p>}
       </div>
       <div style={{paddingBottom: '1rem'}}>
         <button onClick={onContinue} className={styles.btnContinue} style={{backgroundColor: 'white', color: '#1B2A4C', width: '100%'}}>
