@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Smartphone, GraduationCap, Code2, Hand, Target } from "lucide-react";
+import { Smartphone, GraduationCap, Code2, Hand, Target, Mail, AtSign } from "lucide-react";
 
 export default function Home() {
   return (
@@ -170,16 +170,30 @@ export default function Home() {
 
       {/* Footer */}
       <footer>
-        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
           <div>
             <p className="font-extrabold text-lg text-[#1B2A4C]">OrientAI</p>
             <p className="text-sm text-[#1B2A4C]/50 mt-1 max-w-xs">
               Orientación vocacional para estudiantes de secundaria, con matching real a universidades.
             </p>
           </div>
-          <p className="text-xs text-[#1B2A4C]/40 whitespace-nowrap">
-            © {new Date().getFullYear()} OrientAI. Hecho en Argentina.
-          </p>
+
+          <div className="sm:text-right">
+            <div className="flex items-center gap-4 sm:justify-end text-sm text-[#1B2A4C]/60">
+              <a
+                href="mailto:contacto@orientai.com.ar"
+                className="flex items-center gap-1.5 hover:text-[#1B2A4C] transition-colors"
+              >
+                <Mail size={16} /> contacto@orientai.com.ar
+              </a>
+              <span className="flex items-center gap-1.5">
+                <AtSign size={16} /> OrientAI.oficial
+              </span>
+            </div>
+            <p className="text-xs text-[#1B2A4C]/40 mt-3">
+              © {new Date().getFullYear()} OrientAI. Hecho en Argentina.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
