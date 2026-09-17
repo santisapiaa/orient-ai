@@ -6,24 +6,31 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#F6F2EA] text-[#1B2A4C]">
       {/* Header */}
-      <header className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-        <Image
-          src="/logo-horizontal-navy.png"
-          alt="OrientAI — Orientación Vocacional"
-          width={900}
-          height={347}
-          priority
-          className="h-14 md:h-16 w-auto"
-        />
-        <nav className="hidden sm:flex items-center gap-3 text-sm font-semibold">
-          <Link href="/estudiantes" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
-            Soy estudiante
-          </Link>
-          <span className="text-[#1B2A4C]/20">·</span>
-          <Link href="/universidades" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
-            Soy universidad
-          </Link>
-        </nav>
+      <header className="sticky top-0 z-50 bg-[#F6F2EA]/90 backdrop-blur-sm border-b border-[#1B2A4C]/10">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Image
+            src="/logo-horizontal-navy.png"
+            alt="OrientAI — Orientación Vocacional"
+            width={900}
+            height={347}
+            priority
+            className="h-14 md:h-16 w-auto"
+          />
+          <nav className="hidden sm:flex items-center gap-2 text-sm font-semibold">
+            <Link
+              href="/estudiantes"
+              className="px-4 py-2 rounded-full border border-[#1B2A4C]/15 hover:bg-[#1B2A4C]/5 transition-colors"
+            >
+              Soy estudiante
+            </Link>
+            <Link
+              href="/universidades"
+              className="px-4 py-2 rounded-full border border-[#1B2A4C]/15 hover:bg-[#1B2A4C]/5 transition-colors"
+            >
+              Soy universidad
+            </Link>
+          </nav>
+        </div>
       </header>
 
       {/* Hero */}
@@ -160,11 +167,27 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#1B2A4C]/50 border-t border-[#1B2A4C]/10">
-        <span className="font-bold text-[#1B2A4C]">OrientAI</span>
-        <div className="flex gap-6">
-          <Link href="/estudiantes" className="hover:text-[#1B2A4C] transition-colors">Soy estudiante</Link>
-          <Link href="/universidades" className="hover:text-[#1B2A4C] transition-colors">Soy universidad</Link>
+      <footer className="border-t border-[#1B2A4C]/10">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-8 pb-8">
+            <div>
+              <p className="font-extrabold text-lg text-[#1B2A4C]">OrientAI</p>
+              <p className="text-sm text-[#1B2A4C]/50 mt-1 max-w-xs">
+                Orientación vocacional para estudiantes de secundaria, con matching real a universidades.
+              </p>
+            </div>
+            <nav className="flex gap-6 text-sm font-semibold">
+              <Link href="/estudiantes" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
+                Soy estudiante
+              </Link>
+              <Link href="/universidades" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
+                Soy universidad
+              </Link>
+            </nav>
+          </div>
+          <div className="pt-6 border-t border-[#1B2A4C]/10 text-xs text-[#1B2A4C]/40">
+            © {new Date().getFullYear()} OrientAI. Hecho en Argentina.
+          </div>
         </div>
       </footer>
     </div>
