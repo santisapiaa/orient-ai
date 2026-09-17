@@ -14,7 +14,7 @@
 
 .sidebar {
   width: 100%;
-  background-color: #0f172a;
+  background-color: #1B2A4C;
   color: white;
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@
 .sidebarTitle {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #60a5fa;
+  color: #ffffff;
   margin: 0;
 }
 
@@ -70,7 +70,7 @@
 }
 
 .navItemActive {
-  background-color: #2563eb;
+  background-color: #2AAE8A;
   color: white;
 }
 
@@ -119,24 +119,6 @@
     justify-content: space-between;
     align-items: center;
   }
-}
-
-.btnPremium {
-  background: linear-gradient(to right, #fbbf24, #f97316);
-  color: white;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btnPremium:hover {
-  background: linear-gradient(to right, #f59e0b, #ea580c);
 }
 
 .premiumActive {

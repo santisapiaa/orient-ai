@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+:root {
+  /* Paleta de marca OrientAI */
+  --brand-navy: #1b2a4c;
+  --brand-navy-dark: #101b33;
+  --brand-navy-light: #2b3f6e;
+  --brand-green: #2aae8a;
+  --brand-green-dark: #124d41;
+  --brand-green-light: #cff7ea;
+  --brand-red: #dc2626;
+  --brand-cream: #f6f2ea;
+  --brand-ink: #1e293b;
+}
+
 body {
   margin: 0;
   padding: 0;

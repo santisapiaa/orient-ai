@@ -199,7 +199,7 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
     <div className={`${styles.viewContainer} ${styles.testView}`}>
       <div style={{textAlign: 'center', zIndex: 10}}>
         <span style={{fontSize: '0.75rem', fontWeight: 'bold', color: '#2AAE8A', textTransform: 'uppercase', letterSpacing: '0.1em'}}>Match Vocacional</span>
-        <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#124D41', margin: '0.5rem 0 0 0'}}>¿Qué te interesa más?</h2>
+        <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#1B2A4C', margin: '0.5rem 0 0 0'}}>¿Qué te interesa más?</h2>
         <p style={{fontSize: '0.75rem', color: 'rgba(18, 77, 65, 0.7)', marginTop: '0.25rem'}}>Desliza la tarjeta ({currentIndex + 1}/{QUESTIONS.length})</p>
       </div>
 
@@ -219,7 +219,7 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
               whileDrag={{ scale: 1.05, rotate: leaveX ? leaveX / 50 : 0 }}
             >
               <div style={{fontSize: '4rem', marginBottom: '1.5rem', pointerEvents: 'none'}}>{currentQuestion.icon}</div>
-              <h3 style={{fontSize: '1.25rem', fontWeight: '600', color: '#124D41', pointerEvents: 'none'}}>{currentQuestion.text}</h3>
+              <h3 style={{fontSize: '1.25rem', fontWeight: '600', color: '#1B2A4C', pointerEvents: 'none'}}>{currentQuestion.text}</h3>
               
               <div style={{position: 'absolute', bottom: '1.5rem', left: '0', right: '0', display: 'flex', justifyContent: 'space-around', opacity: '0.5', padding: '0 2rem', pointerEvents: 'none'}}>
                 <span style={{color: '#ef4444', fontWeight: 'bold', fontSize: '0.875rem'}}>← Paso</span>
@@ -250,7 +250,7 @@ function ResultsView({ profile, onContinue }: { profile: string[], onContinue: (
         </motion.div>
       </div>
       <div style={{paddingBottom: '1rem'}}>
-        <button onClick={onContinue} className={styles.btnContinue} style={{backgroundColor: 'white', color: '#124D41', width: '100%'}}>
+        <button onClick={onContinue} className={styles.btnContinue} style={{backgroundColor: 'white', color: '#1B2A4C', width: '100%'}}>
           Ver carreras compatibles →
         </button>
       </div>
@@ -274,13 +274,13 @@ function LocationView({ onSubmit }: { onSubmit: (location: string) => void }) {
   return (
     <div className={`${styles.viewContainer} ${styles.loginView}`} style={{padding: '0 1rem'}}>
       <div style={{marginBottom: '0.5rem', textAlign: 'center', marginTop: '1rem'}}>
-        <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#124D41', margin: '0 0 0.25rem 0'}}>¿De qué provincia sos?</h2>
+        <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#1B2A4C', margin: '0 0 0.25rem 0'}}>¿De qué provincia sos?</h2>
         <p style={{fontSize: '0.875rem', color: 'rgba(18, 77, 65, 0.7)', margin: 0}}>Tocá el mapa para buscar universidades 100% anónimas.</p>
       </div>
 
       <div style={{flex: 1, width: '100%', position: 'relative', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
         {loading ? (
-          <div style={{color: '#124D41', fontWeight: 'bold', fontSize: '1.25rem'}}>
+          <div style={{color: '#1B2A4C', fontWeight: 'bold', fontSize: '1.25rem'}}>
             Buscando...
           </div>
         ) : (
@@ -288,11 +288,11 @@ function LocationView({ onSubmit }: { onSubmit: (location: string) => void }) {
             <Argentina
               type="select-single"
               size={200}
-              mapColor="#E2FAF1"
+              mapColor="#E9ECF3"
               strokeColor="#2AAE8A"
               strokeWidth={1}
               hoverColor="#2AAE8A"
-              selectColor="#124D41"
+              selectColor="#1B2A4C"
               hints={true}
               onSelect={handleProvinceClick}
             />
@@ -417,7 +417,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
   if (universities.length === 0) {
     return <div className={styles.viewContainer} style={{justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
       <span style={{fontSize: '3rem', marginBottom: '1rem'}}>😢</span>
-      <h3 style={{fontWeight: 'bold', color: '#124D41'}}>No hay resultados</h3>
+      <h3 style={{fontWeight: 'bold', color: '#1B2A4C'}}>No hay resultados</h3>
       <p style={{fontSize: '0.875rem', color: 'rgba(18, 77, 65, 0.7)'}}>Aún no hemos cargado universidades en tu zona para estas categorías.</p>
     </div>;
   }
@@ -425,7 +425,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
   return (
     <div className={styles.viewContainer} style={{padding: '1rem'}}>
       <div style={{marginBottom: '1rem'}}>
-        <h2 style={{fontSize: '1.25rem', fontWeight: 'bold', color: '#124D41', margin: '0 0 0.25rem 0'}}>Matches en {location}</h2>
+        <h2 style={{fontSize: '1.25rem', fontWeight: 'bold', color: '#1B2A4C', margin: '0 0 0.25rem 0'}}>Matches en {location}</h2>
         <p style={{fontSize: '0.875rem', color: 'rgba(18, 77, 65, 0.7)', margin: 0}}>Mix: {profile.join(" + ")}</p>
       </div>
 
@@ -433,7 +433,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
         <div key={uni.id} className={styles.basicProfile} style={{marginBottom: '1rem', position: 'relative', border: '2px solid #2AAE8A', padding: '1rem'}}>
           
           <div style={{marginBottom: '0.75rem'}}>
-            <h3 style={{fontWeight: 'bold', color: '#124D41', margin: '0 0 0.25rem 0', fontSize: '1rem'}}>{uni.name}</h3>
+            <h3 style={{fontWeight: 'bold', color: '#1B2A4C', margin: '0 0 0.25rem 0', fontSize: '1rem'}}>{uni.name}</h3>
             {uni.description && <p style={{fontSize: '0.75rem', color: 'rgba(18, 77, 65, 0.7)', margin: 0}}>{uni.description}</p>}
           </div>
 
@@ -442,7 +442,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
               {uni.university_videos.map((video) => {
                 const embedUrl = getYouTubeEmbedUrl(video.video_url);
                 return (
-                  <div key={video.id} style={{backgroundColor: '#F2FFFB', borderRadius: '0.75rem', padding: '0.5rem', border: '1px solid #CFF7EA'}}>
+                  <div key={video.id} style={{backgroundColor: '#F4F5F9', borderRadius: '0.75rem', padding: '0.5rem', border: '1px solid #E2E5EE'}}>
                     {embedUrl ? (
                       <div style={{position: 'relative', width: '100%', paddingTop: '56.25%', borderRadius: '0.5rem', overflow: 'hidden', marginBottom: '0.5rem'}}>
                         <iframe
@@ -458,7 +458,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
                         ▶ Ver video (se abre en otra pestaña)
                       </a>
                     )}
-                    <p style={{fontSize: '0.7rem', color: '#124D41', margin: 0}}>
+                    <p style={{fontSize: '0.7rem', color: '#1B2A4C', margin: 0}}>
                       <b>{video.author_name}</b> · {videoRoleLabel(video.author_role)}
                       {video.caption && <span style={{opacity: 0.7}}> — {video.caption}</span>}
                     </p>
@@ -471,10 +471,10 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
           <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem'}}>
             {uni.careers.map((career) => {
               return (
-              <div key={career.id} style={{borderTop: '1px solid #CFF7EA', paddingTop: '0.75rem'}}>
-                <h4 style={{fontSize: '0.875rem', fontWeight: '800', color: '#124D41', margin: '0 0 0.5rem 0'}}>{career.name}</h4>
+              <div key={career.id} style={{borderTop: '1px solid #E2E5EE', paddingTop: '0.75rem'}}>
+                <h4 style={{fontSize: '0.875rem', fontWeight: '800', color: '#1B2A4C', margin: '0 0 0.5rem 0'}}>{career.name}</h4>
                 
-                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem', marginBottom: '0.5rem', fontSize: '0.7rem', color: '#124D41', backgroundColor: '#F2FFFB', padding: '0.5rem', borderRadius: '0.5rem'}}>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem', marginBottom: '0.5rem', fontSize: '0.7rem', color: '#1B2A4C', backgroundColor: '#F4F5F9', padding: '0.5rem', borderRadius: '0.5rem'}}>
                   <div><span style={{opacity: 0.7}}>Demanda:</span> <b>{career.market_demand || 'Evaluando...'}</b></div>
                   <div><span style={{opacity: 0.7}}>Modalidad:</span> <b>{career.work_mode || 'A definir'}</b></div>
                   <div style={{gridColumn: '1 / -1'}}><span style={{opacity: 0.7}}>Salario Promedio Inicial:</span> <b>{career.avg_salary || 'A consultar'}</b></div>
@@ -504,7 +504,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
       ))}
 
       {toast && (
-        <div style={{position: 'fixed', bottom: '5.5rem', left: '1rem', right: '1rem', backgroundColor: '#124D41', color: 'white', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', zIndex: 200, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)'}}>
+        <div style={{position: 'fixed', bottom: '5.5rem', left: '1rem', right: '1rem', backgroundColor: '#1B2A4C', color: 'white', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', zIndex: 200, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)'}}>
           {toast}
         </div>
       )}
@@ -523,18 +523,18 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
             </button>
 
             <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>🤖</div>
-            <h3 style={{fontSize: '1.25rem', fontWeight: 'bold', color: '#124D41', margin: '0 0 1rem 0'}}>Simulador OrientAI</h3>
+            <h3 style={{fontSize: '1.25rem', fontWeight: 'bold', color: '#1B2A4C', margin: '0 0 1rem 0'}}>Simulador OrientAI</h3>
             
             {!caseResult ? (
               <>
-                <p style={{fontSize: '0.875rem', color: '#124D41', whiteSpace: 'pre-line', lineHeight: 1.5, marginBottom: '1.5rem'}}>
+                <p style={{fontSize: '0.875rem', color: '#1B2A4C', whiteSpace: 'pre-line', lineHeight: 1.5, marginBottom: '1.5rem'}}>
                   {activeCase.text}
                 </p>
                 <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-                  <button onClick={() => setCaseResult('A')} style={{textAlign: 'left', padding: '0.75rem', backgroundColor: '#F2FFFB', color: '#124D41', border: '1px solid #CFF7EA', borderRadius: '0.75rem', fontSize: '0.875rem', cursor: 'pointer'}}>
+                  <button onClick={() => setCaseResult('A')} style={{textAlign: 'left', padding: '0.75rem', backgroundColor: '#F4F5F9', color: '#1B2A4C', border: '1px solid #E2E5EE', borderRadius: '0.75rem', fontSize: '0.875rem', cursor: 'pointer'}}>
                     <b>A)</b> {activeCase.optionA}
                   </button>
-                  <button onClick={() => setCaseResult('B')} style={{textAlign: 'left', padding: '0.75rem', backgroundColor: '#F2FFFB', color: '#124D41', border: '1px solid #CFF7EA', borderRadius: '0.75rem', fontSize: '0.875rem', cursor: 'pointer'}}>
+                  <button onClick={() => setCaseResult('B')} style={{textAlign: 'left', padding: '0.75rem', backgroundColor: '#F4F5F9', color: '#1B2A4C', border: '1px solid #E2E5EE', borderRadius: '0.75rem', fontSize: '0.875rem', cursor: 'pointer'}}>
                     <b>B)</b> {activeCase.optionB}
                   </button>
                 </div>
@@ -547,7 +547,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
                 <h4 style={{textAlign: 'center', color: caseResult === activeCase.correct ? '#16a34a' : '#dc2626', marginBottom: '1rem'}}>
                   {caseResult === activeCase.correct ? '¡Decisión Correcta!' : 'Eso no salió muy bien...'}
                 </h4>
-                <p style={{fontSize: '0.875rem', color: 'rgba(18, 77, 65, 0.8)', lineHeight: 1.5, marginBottom: '1.5rem', backgroundColor: '#F2FFFB', padding: '1rem', borderRadius: '0.5rem'}}>
+                <p style={{fontSize: '0.875rem', color: 'rgba(18, 77, 65, 0.8)', lineHeight: 1.5, marginBottom: '1.5rem', backgroundColor: '#F4F5F9', padding: '1rem', borderRadius: '0.5rem'}}>
                   <b>En la realidad de las empresas:</b><br/><br/>
                   {activeCase.explanation}
                 </p>

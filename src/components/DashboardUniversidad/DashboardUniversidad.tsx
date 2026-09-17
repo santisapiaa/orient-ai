@@ -201,7 +201,7 @@ function AuthView() {
           <button
             type="submit"
             disabled={submitting}
-            style={{ backgroundColor: "#0f172a", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}
+            style={{ backgroundColor: "#1B2A4C", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}
           >
             {submitting ? "Un momento..." : mode === "login" ? "Iniciar sesión" : "Crear cuenta y reclamar"}
           </button>
@@ -209,7 +209,7 @@ function AuthView() {
 
         <button
           onClick={() => switchMode(mode === "login" ? "signup" : "login")}
-          style={{ marginTop: "1rem", background: "none", border: "none", color: "#2563eb", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
+          style={{ marginTop: "1rem", background: "none", border: "none", color: "#2AAE8A", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
         >
           {mode === "login" ? "¿Tu universidad todavía no tiene cuenta? Reclamala acá" : "¿Ya tenés cuenta? Iniciá sesión"}
         </button>
@@ -430,7 +430,7 @@ function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; 
             <button
               type="submit"
               disabled={submitting}
-              style={{ backgroundColor: "#0f172a", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}
+              style={{ backgroundColor: "#1B2A4C", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}
             >
               {submitting ? "Reclamando..." : "Reclamar universidad"}
             </button>
@@ -528,7 +528,7 @@ function PanelGeneral({
                 {recentLeads.map((lead) => (
                   <tr key={lead.id}>
                     <td>
-                      <span style={{ backgroundColor: "#dbeafe", color: "#1d4ed8", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", fontSize: "0.75rem", fontWeight: "bold" }}>
+                      <span style={{ backgroundColor: "#CFF7EA", color: "#124D41", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", fontSize: "0.75rem", fontWeight: "bold" }}>
                         {lead.matched_category}
                       </span>
                     </td>
@@ -628,7 +628,7 @@ function VideosPanel({ universityId }: { universityId: string }) {
 
         {error && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
 
-        <button type="submit" disabled={submitting} style={{ backgroundColor: "#2563eb", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}>
+        <button type="submit" disabled={submitting} style={{ backgroundColor: "#2AAE8A", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1 }}>
           {submitting ? "Guardando..." : "+ Agregar video"}
         </button>
       </form>
@@ -645,7 +645,7 @@ function VideosPanel({ universityId }: { universityId: string }) {
                 <p style={{ margin: 0, fontWeight: "bold", color: "#1e293b", fontSize: "0.875rem" }}>
                   {v.author_name} · <span style={{ fontWeight: "normal", color: "#64748b" }}>{roleLabel(v.author_role)}</span>
                 </p>
-                <a href={v.video_url} target="_blank" rel="noreferrer" style={{ fontSize: "0.8rem", color: "#2563eb", wordBreak: "break-all" }}>
+                <a href={v.video_url} target="_blank" rel="noreferrer" style={{ fontSize: "0.8rem", color: "#2AAE8A", wordBreak: "break-all" }}>
                   {v.video_url}
                 </a>
               </div>
@@ -722,7 +722,7 @@ function LeadsPanel({ universityId }: { universityId: string }) {
               {leads.map((lead) => (
                 <tr key={lead.id}>
                   <td>
-                    <span style={{ backgroundColor: "#dbeafe", color: "#1d4ed8", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", fontSize: "0.75rem", fontWeight: "bold" }}>
+                    <span style={{ backgroundColor: "#CFF7EA", color: "#124D41", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", fontSize: "0.75rem", fontWeight: "bold" }}>
                       {lead.matched_category}
                     </span>
                   </td>
@@ -805,7 +805,7 @@ function PerfilPanel({
         <button
           type="submit"
           disabled={submitting}
-          style={{ backgroundColor: "#2563eb", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1, alignSelf: "flex-start", paddingInline: "1.5rem" }}
+          style={{ backgroundColor: "#2AAE8A", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1, alignSelf: "flex-start", paddingInline: "1.5rem" }}
         >
           {submitting ? "Guardando..." : "Guardar cambios"}
         </button>
