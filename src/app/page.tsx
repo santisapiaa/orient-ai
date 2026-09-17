@@ -7,14 +7,14 @@ export default function Home() {
     <div className="min-h-screen bg-[#F6F2EA] text-[#1B2A4C]">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#F6F2EA]/90 backdrop-blur-sm border-b border-[#1B2A4C]/10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-center sm:justify-between">
           <Image
             src="/logo-horizontal-navy.png"
             alt="OrientAI — Orientación Vocacional"
             width={900}
             height={347}
             priority
-            className="h-14 md:h-16 w-auto"
+            className="h-16 md:h-20 w-auto"
           />
           <nav className="hidden sm:flex items-center gap-2 text-sm font-semibold">
             <Link
