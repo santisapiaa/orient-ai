@@ -12,9 +12,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const title = "OrientAI — Orientación Vocacional";
+const description = "Test vocacional tipo like/dislike para estudiantes de secundaria, con matching real a carreras y universidades.";
+
 export const metadata: Metadata = {
-  title: "OrientAI",
-  description: "Orientación vocacional con matching de universidades y carreras",
+  metadataBase: new URL("https://orientai.com.ar"),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: "/",
+    siteName: "OrientAI",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "OrientAI — Orientación Vocacional" }],
+    locale: "es_AR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
