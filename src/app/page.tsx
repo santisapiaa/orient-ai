@@ -13,7 +13,7 @@ export default function Home() {
           width={900}
           height={347}
           priority
-          className="h-10 w-auto"
+          className="h-14 md:h-16 w-auto"
         />
         <nav className="hidden sm:flex items-center gap-3 text-sm font-semibold">
           <Link href="/estudiantes" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
@@ -144,8 +144,23 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Marca */}
+      <section className="max-w-3xl mx-auto px-6 py-20 text-center">
+        <Image
+          src="/logo-horizontal-navy.png"
+          alt="OrientAI — Orientación Vocacional"
+          width={900}
+          height={347}
+          className="h-16 md:h-20 w-auto mx-auto mb-6"
+        />
+        <p className="text-[#1B2A4C]/60 leading-relaxed">
+          OrientAI existe para que ningún estudiante de secundaria tenga que elegir una carrera a ciegas,
+          y para que las universidades encuentren, antes que nadie, a quienes ya las están buscando.
+        </p>
+      </section>
+
       {/* Footer */}
-      <footer className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#1B2A4C]/50">
+      <footer className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#1B2A4C]/50 border-t border-[#1B2A4C]/10">
         <span className="font-bold text-[#1B2A4C]">OrientAI</span>
         <div className="flex gap-6">
           <Link href="/estudiantes" className="hover:text-[#1B2A4C] transition-colors">Soy estudiante</Link>
