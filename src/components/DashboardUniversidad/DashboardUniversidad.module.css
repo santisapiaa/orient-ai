@@ -177,6 +177,39 @@
   }
 }
 
+.footerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: none;
+  color: white;
+}
+
+.footerButton:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.footerButtonGhost {
+  border-color: transparent;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.footerButtonGhost:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: transparent;
+}
+
 .mainContent {
   flex: 1;
   padding: 1rem;

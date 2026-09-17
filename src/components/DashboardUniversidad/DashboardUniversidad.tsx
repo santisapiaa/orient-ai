@@ -15,6 +15,8 @@ import {
   FileText,
   Menu,
   X,
+  LogOut,
+  ArrowLeft,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -473,10 +475,12 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
           </nav>
 
           <div className={styles.sidebarFooter} style={{ flexDirection: "column", gap: "0.5rem" }}>
-            <button onClick={onSignOut} style={{ color: "#94a3b8", background: "none", border: "none", textAlign: "left", cursor: "pointer", fontSize: "0.875rem", padding: 0 }}>
-              Cerrar sesión
+            <button onClick={onSignOut} className={styles.footerButton}>
+              <LogOut size={16} /> Cerrar sesión
             </button>
-            <Link href="/" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }}>← Volver al inicio</Link>
+            <Link href="/" className={`${styles.footerButton} ${styles.footerButtonGhost}`}>
+              <ArrowLeft size={16} /> Volver al inicio
+            </Link>
           </div>
         </div>
       </aside>

@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   XCircle,
   Share2,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -155,7 +156,7 @@ export default function AppEstudiante() {
             </span>
             <h1 className={styles.headerTitle}>OrientAI</h1>
           </div>
-          <Link href="/" className={styles.headerLink}>Salir</Link>
+          <Link href="/" className={styles.headerLink}><LogOut size={14} /> Salir</Link>
         </div>
 
         <div className={styles.contentArea}>
