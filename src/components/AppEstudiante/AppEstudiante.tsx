@@ -246,7 +246,7 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
               onDragEnd={handleDragEnd}
               whileDrag={{ scale: 1.05, rotate: leaveX ? leaveX / 50 : 0 }}
             >
-              <div style={{marginBottom: '1.5rem', pointerEvents: 'none', color: '#1B2A4C'}}><currentQuestion.icon size={64} strokeWidth={1.5} /></div>
+              <div style={{marginBottom: '1.5rem', pointerEvents: 'none', color: '#1B2A4C', display: 'flex', justifyContent: 'center'}}><currentQuestion.icon size={64} strokeWidth={1.5} /></div>
               <h3 style={{fontSize: '1.25rem', fontWeight: '600', color: '#1B2A4C', pointerEvents: 'none'}}>{currentQuestion.text}</h3>
               
               <div style={{position: 'absolute', bottom: '1.5rem', left: '0', right: '0', display: 'flex', justifyContent: 'space-around', opacity: '0.5', padding: '0 2rem', pointerEvents: 'none'}}>
