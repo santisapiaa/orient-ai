@@ -9,6 +9,7 @@ type MyUniversity = {
   id: string;
   name: string;
   is_premium: boolean;
+  description: string | null;
 };
 
 type UnclaimedUniversity = {
@@ -226,11 +227,10 @@ function AuthView() {
 function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignOut: () => void }) {
   const [myUniversity, setMyUniversity] = useState<MyUniversity | null>(null);
   const [loadingUniversity, setLoadingUniversity] = useState(true);
-  const [activeSection, setActiveSection] = useState<"panel" | "videos">("panel");
+  const [activeSection, setActiveSection] = useState<"panel" | "videos" | "leads" | "perfil">("panel");
   const [leadsCount, setLeadsCount] = useState(0);
   const [recentLeads, setRecentLeads] = useState<LeadRow[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(true);
-  const [updatingPremium, setUpdatingPremium] = useState(false);
   const [claimReloadKey, setClaimReloadKey] = useState(0);
 
   useEffect(() => {
@@ -238,7 +238,7 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
       setLoadingUniversity(true);
       const { data } = await supabase
         .from("universities")
-        .select("id, name, is_premium")
+        .select("id, name, is_premium, description")
         .eq("owner_user_id", userId)
         .maybeSingle();
       setMyUniversity(data);
@@ -273,22 +273,6 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
     loadLeads();
   }, [myUniversity]);
 
-  const activatePremium = async () => {
-    if (!myUniversity) return;
-    setUpdatingPremium(true);
-
-    const { error } = await supabase.rpc("activate_university_premium", {
-      target_id: myUniversity.id,
-    });
-
-    if (!error) {
-      setMyUniversity({ ...myUniversity, is_premium: true });
-    } else {
-      console.error("No se pudo activar Premium:", error.message);
-    }
-    setUpdatingPremium(false);
-  };
-
   if (loadingUniversity) {
     return <FullScreenMessage>Cargando tu universidad...</FullScreenMessage>;
   }
@@ -319,7 +303,14 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             active={activeSection === "panel"}
             onClick={() => setActiveSection("panel")}
           />
-          <NavItem icon="👥" text="Leads Estudiantiles" isPremiumOnly={!isPremium} />
+          <SidebarButton
+            icon="👥"
+            text="Leads Estudiantiles"
+            active={activeSection === "leads"}
+            disabled={!isPremium}
+            isPremiumOnly={!isPremium}
+            onClick={() => isPremium && setActiveSection("leads")}
+          />
           <SidebarButton
             icon="🎥"
             text="Gestionar Videos"
@@ -328,7 +319,12 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             isPremiumOnly={!isPremium}
             onClick={() => isPremium && setActiveSection("videos")}
           />
-          <NavItem icon="⚙️" text="Configurar Perfil" />
+          <SidebarButton
+            icon="⚙️"
+            text="Configurar Perfil"
+            active={activeSection === "perfil"}
+            onClick={() => setActiveSection("perfil")}
+          />
         </nav>
 
         <div className={styles.sidebarFooter} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -342,12 +338,18 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
       <main className={styles.mainContent}>
         {activeSection === "videos" && isPremium ? (
           <VideosPanel universityId={myUniversity.id} />
+        ) : activeSection === "leads" && isPremium ? (
+          <LeadsPanel universityId={myUniversity.id} />
+        ) : activeSection === "perfil" ? (
+          <PerfilPanel
+            universityId={myUniversity.id}
+            description={myUniversity.description}
+            onUpdated={(newDescription) => setMyUniversity({ ...myUniversity, description: newDescription })}
+          />
         ) : (
           <PanelGeneral
             universityName={myUniversity.name}
             isPremium={isPremium}
-            updatingPremium={updatingPremium}
-            onActivatePremium={activatePremium}
             leadsCount={leadsCount}
             loadingLeads={loadingLeads}
             recentLeads={recentLeads}
@@ -448,16 +450,12 @@ function ClaimUniversityView({ onClaimed, onSignOut }: { onClaimed: () => void; 
 function PanelGeneral({
   universityName,
   isPremium,
-  updatingPremium,
-  onActivatePremium,
   leadsCount,
   loadingLeads,
   recentLeads,
 }: {
   universityName: string;
   isPremium: boolean;
-  updatingPremium: boolean;
-  onActivatePremium: () => void;
   leadsCount: number;
   loadingLeads: boolean;
   recentLeads: LeadRow[];
@@ -471,9 +469,9 @@ function PanelGeneral({
         </div>
 
         {!isPremium ? (
-          <button onClick={onActivatePremium} disabled={updatingPremium} className={styles.btnPremium} style={{ opacity: updatingPremium ? 0.7 : 1 }}>
-            <span>⭐</span> {updatingPremium ? "Activando..." : "Actualizar a Premium"}
-          </button>
+          <div style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "0.5rem 1rem", borderRadius: "0.5rem", fontWeight: "bold", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span>⭐</span> Cuenta estándar
+          </div>
         ) : (
           <div className={styles.premiumActive}>
             <span>✅</span> Cuenta Premium Activa
@@ -497,13 +495,12 @@ function PanelGeneral({
         <div className={styles.paywallContainer}>
           <span style={{ fontSize: "2.25rem", marginBottom: "1rem", display: "block" }}>🔒</span>
           <h3 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Desbloqueá tus leads</h3>
-          <p style={{ color: "#475569", marginBottom: "2rem" }}>
-            Actualmente estás perdiendo estudiantes que buscan tu carrera. Pásate a Premium para aparecer primero en los resultados, mostrar videos de tus alumnos y acceder a los datos de contacto.
+          <p style={{ color: "#475569", marginBottom: "1.5rem" }}>
+            Actualmente estás perdiendo estudiantes que buscan tu carrera. Con Premium tu universidad aparece primero en los resultados, podés mostrar videos de tus alumnos y acceder a los datos de contacto.
           </p>
-          <button onClick={onActivatePremium} disabled={updatingPremium} style={{ backgroundColor: "#0f172a", color: "white", padding: "0.75rem 2rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: updatingPremium ? 0.7 : 1 }}>
-            Ver Demostración Premium
-          </button>
-          <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "1rem" }}>(Botón para simular en la presentación)</p>
+          <p style={{ color: "#94a3b8", fontSize: "0.8rem" }}>
+            Premium se activa cuando tu universidad se afilia con nosotros. Contactá a nuestro equipo para coordinarlo.
+          </p>
         </div>
       ) : (
         <div className={styles.dataTableContainer}>
@@ -669,19 +666,155 @@ function roleLabel(role: VideoRow["author_role"]) {
   return "Alumno/a actual";
 }
 
-// --- Helper Components ---
+function LeadsPanel({ universityId }: { universityId: string }) {
+  const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
-function NavItem({ icon, text, isPremiumOnly = false }: { icon: string; text: string; isPremiumOnly?: boolean }) {
-  const itemClass = `${styles.navItem} ${isPremiumOnly ? styles.navItemDisabled : ""}`;
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadLeads() {
+      setLoading(true);
+      const { data } = await supabase
+        .from("leads")
+        .select("id, location, matched_category, created_at")
+        .eq("university_id", universityId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (!cancelled) {
+        setLeads(data ?? []);
+        setLoading(false);
+      }
+    }
+
+    loadLeads();
+    return () => {
+      cancelled = true;
+    };
+  }, [universityId]);
 
   return (
-    <a href="#" className={itemClass}>
-      <span>{icon}</span>
-      <span style={{ fontWeight: "500", fontSize: "0.875rem" }}>{text}</span>
-      {isPremiumOnly && <span className={styles.proBadge}>PRO</span>}
-    </a>
+    <div>
+      <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e293b", marginBottom: "1rem" }}>Leads Estudiantiles</h2>
+
+      <div className={styles.dataTableContainer}>
+        <div className={styles.tableHeader}>
+          <h3 style={{ margin: 0, fontWeight: "bold", color: "#1e293b" }}>Últimos 50 contactos</h3>
+        </div>
+
+        {loading ? (
+          <div style={{ padding: "1.5rem", color: "#64748b" }}>Cargando leads...</div>
+        ) : leads.length === 0 ? (
+          <div style={{ padding: "1.5rem", color: "#64748b" }}>
+            Todavía no llegaron leads reales para esta universidad. Van a aparecer acá apenas un estudiante toque &quot;Contactar Admisiones&quot; en la app.
+          </div>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Interés</th>
+                <th>Ubicación</th>
+                <th>Fecha</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map((lead) => (
+                <tr key={lead.id}>
+                  <td>
+                    <span style={{ backgroundColor: "#dbeafe", color: "#1d4ed8", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", fontSize: "0.75rem", fontWeight: "bold" }}>
+                      {lead.matched_category}
+                    </span>
+                  </td>
+                  <td style={{ fontWeight: "bold", color: "#1e293b" }}>{lead.location}</td>
+                  <td style={{ color: "#64748b", fontSize: "0.8rem" }}>
+                    {lead.created_at ? new Date(lead.created_at).toLocaleDateString("es-AR") : "-"}
+                  </td>
+                  <td>
+                    <button style={{ color: "#16a34a", border: "none", background: "none", fontWeight: "bold", cursor: "pointer" }}>💬 Contactar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
   );
 }
+
+function PerfilPanel({
+  universityId,
+  description,
+  onUpdated,
+}: {
+  universityId: string;
+  description: string | null;
+  onUpdated: (newDescription: string) => void;
+}) {
+  const [value, setValue] = useState(description ?? "");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSaved(false);
+    setSubmitting(true);
+
+    const { error: updateError } = await supabase.rpc("update_university_profile", {
+      target_id: universityId,
+      new_description: value,
+    });
+
+    setSubmitting(false);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+
+    onUpdated(value);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  return (
+    <div>
+      <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e293b", marginBottom: "0.5rem" }}>Configurar Perfil</h2>
+      <p style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+        Esta descripción es lo que ven los estudiantes en la app, debajo del nombre de tu universidad.
+      </p>
+
+      <form onSubmit={handleSubmit} className={styles.dataTableContainer} style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem", maxWidth: "36rem" }}>
+        <label htmlFor="university-description" style={{ fontSize: "0.8rem", fontWeight: "bold", color: "#1e293b" }}>
+          Descripción
+        </label>
+        <textarea
+          id="university-description"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          rows={4}
+          placeholder="Ej: Facultad con plan de estudios tradicional y sólido enfocado en investigación."
+          style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
+        />
+
+        {error && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
+        {saved && <p style={{ color: "#16a34a", fontSize: "0.8rem", margin: 0 }}>Guardado.</p>}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          style={{ backgroundColor: "#2563eb", color: "white", padding: "0.75rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: submitting ? 0.7 : 1, alignSelf: "flex-start", paddingInline: "1.5rem" }}
+        >
+          {submitting ? "Guardando..." : "Guardar cambios"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// --- Helper Components ---
 
 function SidebarButton({
   icon,

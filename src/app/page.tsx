@@ -10,12 +10,12 @@ export default function Home() {
         </div>
 
         <div className="space-y-4">
-          <Link href="/student" className="block w-full py-4 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all">
+          <Link href="/estudiantes" className="block w-full py-4 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all">
             📱 Ver Vista de Estudiante
             <span className="block text-sm font-normal opacity-80 mt-1">Simulación de la App (Mobile)</span>
           </Link>
-          
-          <Link href="/university" className="block w-full py-4 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-semibold transition-all">
+
+          <Link href="/universidades" className="block w-full py-4 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-semibold transition-all">
             💻 Ver Vista de Universidad
             <span className="block text-sm font-normal opacity-80 mt-1">Dashboard B2B (Desktop)</span>
           </Link>
