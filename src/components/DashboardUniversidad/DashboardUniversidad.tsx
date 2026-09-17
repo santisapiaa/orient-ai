@@ -1,20 +1,144 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 import styles from "./DashboardUniversidad.module.css";
 
+type UniversityOption = {
+  id: string;
+  name: string;
+  is_premium: boolean;
+};
+
+type LeadRow = {
+  id: string;
+  location: string;
+  matched_category: string;
+  created_at: string | null;
+};
+
+// Sin login todavía: persistimos qué universidad estás viendo en localStorage
+// para simular una sesión, en vez de mostrar siempre la primera de la lista.
+const SELECTED_UNIVERSITY_KEY = "orientai_selected_university";
+
 export default function DashboardUniversidad() {
+  const [universities, setUniversities] = useState<UniversityOption[]>([]);
+  const [selectedId, setSelectedId] = useState<string>("");
   const [isPremium, setIsPremium] = useState(false);
+  const [leadsCount, setLeadsCount] = useState(0);
+  const [recentLeads, setRecentLeads] = useState<LeadRow[]>([]);
+  const [loadingUniversities, setLoadingUniversities] = useState(true);
+  const [loadingLeads, setLoadingLeads] = useState(true);
+  const [updatingPremium, setUpdatingPremium] = useState(false);
+
+  useEffect(() => {
+    async function loadUniversities() {
+      const { data, error } = await supabase
+        .from("universities")
+        .select("id, name, is_premium")
+        .order("name");
+
+      if (error || !data || data.length === 0) {
+        setLoadingUniversities(false);
+        return;
+      }
+
+      setUniversities(data);
+
+      let storedId: string | null = null;
+      try {
+        storedId = window.localStorage.getItem(SELECTED_UNIVERSITY_KEY);
+      } catch {}
+
+      const initial = data.find((u) => u.id === storedId) ?? data[0];
+      setSelectedId(initial.id);
+      setIsPremium(initial.is_premium);
+      setLoadingUniversities(false);
+    }
+    loadUniversities();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId) return;
+
+    async function loadLeads() {
+      setLoadingLeads(true);
+
+      const { count } = await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("university_id", selectedId);
+
+      const { data: recent } = await supabase
+        .from("leads")
+        .select("id, location, matched_category, created_at")
+        .eq("university_id", selectedId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      setLeadsCount(count ?? 0);
+      setRecentLeads(recent ?? []);
+      setLoadingLeads(false);
+    }
+    loadLeads();
+  }, [selectedId]);
+
+  const handleSelectUniversity = (id: string) => {
+    setSelectedId(id);
+    const uni = universities.find((u) => u.id === id);
+    setIsPremium(uni?.is_premium ?? false);
+    try {
+      window.localStorage.setItem(SELECTED_UNIVERSITY_KEY, id);
+    } catch {}
+  };
+
+  const activatePremium = async () => {
+    if (!selectedId) return;
+    setUpdatingPremium(true);
+
+    const { error } = await supabase
+      .from("universities")
+      .update({ is_premium: true })
+      .eq("id", selectedId);
+
+    if (!error) {
+      setIsPremium(true);
+      setUniversities((prev) =>
+        prev.map((u) => (u.id === selectedId ? { ...u, is_premium: true } : u))
+      );
+    } else {
+      console.error("No se pudo activar Premium:", error.message);
+    }
+    setUpdatingPremium(false);
+  };
+
+  const selectedUniversity = universities.find((u) => u.id === selectedId);
 
   return (
     <div className={styles.dashboardContainer}>
-      
       {/* Sidebar Navigation */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
           <h1 className={styles.sidebarTitle}>OrientAI <span style={{fontSize: '0.875rem', color: 'white', fontWeight: 'normal'}}>B2B</span></h1>
           <p className={styles.sidebarSubtitle}>Panel de Universidad</p>
         </div>
+
+        {universities.length > 1 && (
+          <div style={{padding: '0 1.5rem', marginBottom: '0.5rem'}}>
+            <label style={{fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '0.25rem'}}>
+              Viendo como (demo, sin login):
+            </label>
+            <select
+              value={selectedId}
+              onChange={(e) => handleSelectUniversity(e.target.value)}
+              style={{width: '100%', padding: '0.5rem', borderRadius: '0.5rem', backgroundColor: '#1e293b', color: 'white', border: '1px solid #334155', fontSize: '0.8rem'}}
+            >
+              {universities.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <nav className={styles.sidebarNav}>
           <NavItem active icon="📊" text="Panel General" />
@@ -32,101 +156,122 @@ export default function DashboardUniversidad() {
 
       {/* Main Content */}
       <main className={styles.mainContent}>
-        <header className={styles.header}>
-          <div>
-            <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: '#1e293b'}}>Hola, Universidad Siglo XXI</h2>
-            <p style={{color: '#64748b', fontSize: '0.875rem', margin: 0}}>Resumen de tu rendimiento de los últimos 30 días.</p>
-          </div>
-          
-          {!isPremium ? (
-            <button 
-              onClick={() => setIsPremium(true)}
-              className={styles.btnPremium}
-            >
-              <span>⭐</span> Actualizar a Premium
-            </button>
-          ) : (
-            <div className={styles.premiumActive}>
-              <span>✅</span> Cuenta Premium Activa
-            </div>
-          )}
-        </header>
-
-        {/* Stats Grid */}
-        <div className={styles.statsGrid}>
-          <StatCard 
-            title="Apariciones en Resultados" 
-            value="12,450" 
-            trend="+15%" 
-            subtitle="Veces que tu perfil básico fue visto" 
-          />
-          <StatCard 
-            title="Clicks en Perfil" 
-            value="843" 
-            trend="+5%" 
-            subtitle="Estudiantes interesados en Economía" 
-          />
-          <StatCard 
-            title="Leads de WhatsApp" 
-            value={isPremium ? "152" : "Bloqueado"} 
-            trend={isPremium ? "+22%" : ""} 
-            subtitle="Contactos directos generados" 
-            isBlurred={!isPremium}
-          />
-        </div>
-
-        {/* Main Content Area based on Plan */}
-        {!isPremium ? (
-          <div className={styles.paywallContainer}>
-            <span style={{fontSize: '2.25rem', marginBottom: '1rem', display: 'block'}}>🔒</span>
-            <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b', margin: '0 0 0.5rem 0'}}>Desbloquea tus 843 Leads</h3>
-            <p style={{color: '#475569', marginBottom: '2rem'}}>
-              Actualmente estás perdiendo estudiantes que buscan tu carrera. Pásate a Premium para mostrar videos, poner tu botón de WhatsApp y acceder a los datos de contacto.
-            </p>
-
-            <button 
-              onClick={() => setIsPremium(true)}
-              style={{backgroundColor: '#0f172a', color: 'white', padding: '0.75rem 2rem', borderRadius: '0.5rem', fontWeight: 'bold', border: 'none', cursor: 'pointer'}}
-            >
-              Ver Demostración Premium
-            </button>
-            <p style={{fontSize: '0.75rem', color: '#94a3b8', marginTop: '1rem'}}>(Botón para simular en la presentación)</p>
+        {loadingUniversities ? (
+          <div style={{color: '#64748b'}}>Cargando universidades...</div>
+        ) : !selectedUniversity ? (
+          <div style={{color: '#64748b'}}>
+            No hay universidades cargadas todavía en Supabase.
           </div>
         ) : (
-          <div className={styles.dataTableContainer}>
-            <div className={styles.tableHeader}>
-              <h3 style={{margin: 0, fontWeight: 'bold', color: '#1e293b'}}>Últimos Leads (Estudiantes de Economía)</h3>
+          <>
+            <header className={styles.header}>
+              <div>
+                <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: '#1e293b'}}>Hola, {selectedUniversity.name}</h2>
+                <p style={{color: '#64748b', fontSize: '0.875rem', margin: 0}}>Resumen de tu rendimiento de los últimos 30 días.</p>
+              </div>
+
+              {!isPremium ? (
+                <button
+                  onClick={activatePremium}
+                  disabled={updatingPremium}
+                  className={styles.btnPremium}
+                  style={{opacity: updatingPremium ? 0.7 : 1}}
+                >
+                  <span>⭐</span> {updatingPremium ? "Activando..." : "Actualizar a Premium"}
+                </button>
+              ) : (
+                <div className={styles.premiumActive}>
+                  <span>✅</span> Cuenta Premium Activa
+                </div>
+              )}
+            </header>
+
+            {/* Stats Grid */}
+            <div className={styles.statsGrid}>
+              <StatCard
+                title="Apariciones en Resultados"
+                value="12,450"
+                trend="+15%"
+                subtitle="Veces que tu perfil básico fue visto (dato de demo, no medido aún)"
+              />
+              <StatCard
+                title="Clicks en Perfil"
+                value="843"
+                trend="+5%"
+                subtitle="Estudiantes interesados en tus carreras (dato de demo, no medido aún)"
+              />
+              <StatCard
+                title="Leads de WhatsApp"
+                value={isPremium ? (loadingLeads ? "..." : String(leadsCount)) : "Bloqueado"}
+                trend={isPremium && leadsCount > 0 ? "Real" : ""}
+                subtitle="Contactos directos generados desde la app"
+                isBlurred={!isPremium}
+              />
             </div>
-            
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Interés Principal</th>
-                  <th>Colegio</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{fontWeight: 'bold', color: '#1e293b'}}>Martín L.</td>
-                  <td><span style={{backgroundColor: '#dbeafe', color: '#1d4ed8', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.75rem', fontWeight: 'bold'}}>Ciencias Económicas</span></td>
-                  <td>Colegio Nacional</td>
-                  <td>
-                    <button style={{color: '#16a34a', border: 'none', background: 'none', fontWeight: 'bold', cursor: 'pointer'}}>💬 Contactar</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{fontWeight: 'bold', color: '#1e293b'}}>Sofía R.</td>
-                  <td><span style={{backgroundColor: '#dbeafe', color: '#1d4ed8', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.75rem', fontWeight: 'bold'}}>Contabilidad</span></td>
-                  <td>Instituto San José</td>
-                  <td>
-                    <button style={{color: '#16a34a', border: 'none', background: 'none', fontWeight: 'bold', cursor: 'pointer'}}>💬 Contactar</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+            {/* Main Content Area based on Plan */}
+            {!isPremium ? (
+              <div className={styles.paywallContainer}>
+                <span style={{fontSize: '2.25rem', marginBottom: '1rem', display: 'block'}}>🔒</span>
+                <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b', margin: '0 0 0.5rem 0'}}>Desbloqueá tus leads</h3>
+                <p style={{color: '#475569', marginBottom: '2rem'}}>
+                  Actualmente estás perdiendo estudiantes que buscan tu carrera. Pásate a Premium para mostrar videos, poner tu botón de WhatsApp y acceder a los datos de contacto.
+                </p>
+
+                <button
+                  onClick={activatePremium}
+                  disabled={updatingPremium}
+                  style={{backgroundColor: '#0f172a', color: 'white', padding: '0.75rem 2rem', borderRadius: '0.5rem', fontWeight: 'bold', border: 'none', cursor: 'pointer', opacity: updatingPremium ? 0.7 : 1}}
+                >
+                  Ver Demostración Premium
+                </button>
+                <p style={{fontSize: '0.75rem', color: '#94a3b8', marginTop: '1rem'}}>(Botón para simular en la presentación)</p>
+              </div>
+            ) : (
+              <div className={styles.dataTableContainer}>
+                <div className={styles.tableHeader}>
+                  <h3 style={{margin: 0, fontWeight: 'bold', color: '#1e293b'}}>Últimos Leads</h3>
+                </div>
+
+                {loadingLeads ? (
+                  <div style={{padding: '1.5rem', color: '#64748b'}}>Cargando leads...</div>
+                ) : recentLeads.length === 0 ? (
+                  <div style={{padding: '1.5rem', color: '#64748b'}}>
+                    Todavía no llegaron leads reales para esta universidad. Van a aparecer acá apenas un estudiante toque &quot;Contactar Admisiones&quot; en la app.
+                  </div>
+                ) : (
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Interés</th>
+                        <th>Ubicación</th>
+                        <th>Fecha</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentLeads.map((lead) => (
+                        <tr key={lead.id}>
+                          <td>
+                            <span style={{backgroundColor: '#dbeafe', color: '#1d4ed8', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.75rem', fontWeight: 'bold'}}>
+                              {lead.matched_category}
+                            </span>
+                          </td>
+                          <td style={{fontWeight: 'bold', color: '#1e293b'}}>{lead.location}</td>
+                          <td style={{color: '#64748b', fontSize: '0.8rem'}}>
+                            {lead.created_at ? new Date(lead.created_at).toLocaleDateString('es-AR') : '-'}
+                          </td>
+                          <td>
+                            <button style={{color: '#16a34a', border: 'none', background: 'none', fontWeight: 'bold', cursor: 'pointer'}}>💬 Contactar</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
@@ -137,7 +282,7 @@ export default function DashboardUniversidad() {
 
 function NavItem({ icon, text, active = false, isPremiumOnly = false }: { icon: string, text: string, active?: boolean, isPremiumOnly?: boolean }) {
   const itemClass = `${styles.navItem} ${active ? styles.navItemActive : ''} ${isPremiumOnly ? styles.navItemDisabled : ''}`;
-  
+
   return (
     <a href="#" className={itemClass}>
       <span>{icon}</span>

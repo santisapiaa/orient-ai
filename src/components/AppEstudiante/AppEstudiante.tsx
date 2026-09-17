@@ -276,6 +276,38 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
   const [loading, setLoading] = useState(true);
   const [activeCase, setActiveCase] = useState<MicroCase | null>(null);
   const [caseResult, setCaseResult] = useState<'A' | 'B' | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [contactingId, setContactingId] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  const contactAdmissions = async (uni: University) => {
+    setContactingId(uni.id);
+    const { error } = await supabase.from('leads').insert([
+      {
+        full_name: "Estudiante Anónimo",
+        contact_info: "Sin registro",
+        location,
+        matched_category: profile.join(" + "),
+        university_id: uni.id,
+      },
+    ]);
+    setContactingId(null);
+
+    if (error) {
+      console.error('No se pudo registrar el lead de WhatsApp:', error.message);
+      showToast('No pudimos enviar tu contacto. Probá de nuevo.');
+      return;
+    }
+    showToast(`¡Listo! ${uni.name} va a contactarte por WhatsApp.`);
+  };
+
+  const downloadStudyPlan = (careerName: string) => {
+    showToast(`Plan de estudios de "${careerName}" enviado (simulado).`);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -387,7 +419,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
                   <button onClick={() => openMicroCase(career.name, career.category)} style={{fontSize: '0.65rem', fontWeight: 'bold', color: 'white', backgroundColor: '#2AAE8A', padding: '0.25rem 0.5rem', borderRadius: '9999px', border: 'none', cursor: 'pointer'}}>
                     🤖 Micro-Caso AI
                   </button>
-                  <button onClick={() => alert('Descargando PDF...')} style={{fontSize: '0.65rem', color: 'rgba(18, 77, 65, 0.7)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
+                  <button onClick={() => downloadStudyPlan(career.name)} style={{fontSize: '0.65rem', color: 'rgba(18, 77, 65, 0.7)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
                     Plan de Estudios
                   </button>
                 </div>
@@ -395,11 +427,22 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
             )})}
           </div>
 
-          <button className={styles.btnWhatsapp} style={{marginTop: '0.5rem'}}>
-            💬 Contactar Admisiones
+          <button
+            className={styles.btnWhatsapp}
+            style={{marginTop: '0.5rem', opacity: contactingId === uni.id ? 0.7 : 1}}
+            disabled={contactingId === uni.id}
+            onClick={() => contactAdmissions(uni)}
+          >
+            💬 {contactingId === uni.id ? 'Enviando...' : 'Contactar Admisiones'}
           </button>
         </div>
       ))}
+
+      {toast && (
+        <div style={{position: 'fixed', bottom: '5.5rem', left: '1rem', right: '1rem', backgroundColor: '#124D41', color: 'white', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', zIndex: 200, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)'}}>
+          {toast}
+        </div>
+      )}
 
       {/* MODAL MICRO-CASO */}
       {activeCase && (
