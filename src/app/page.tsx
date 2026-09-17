@@ -170,14 +170,16 @@ export default function Home() {
 
       {/* Footer */}
       <footer>
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <p className="font-extrabold text-lg text-[#1B2A4C]">OrientAI</p>
-          <p className="text-sm text-[#1B2A4C]/50 mt-1 max-w-xs">
-            Orientación vocacional para estudiantes de secundaria, con matching real a universidades.
-          </p>
-          <div className="mt-6 pt-6 border-t border-[#1B2A4C]/10 text-xs text-[#1B2A4C]/40">
-            © {new Date().getFullYear()} OrientAI. Hecho en Argentina.
+        <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p className="font-extrabold text-lg text-[#1B2A4C]">OrientAI</p>
+            <p className="text-sm text-[#1B2A4C]/50 mt-1 max-w-xs">
+              Orientación vocacional para estudiantes de secundaria, con matching real a universidades.
+            </p>
           </div>
+          <p className="text-xs text-[#1B2A4C]/40 whitespace-nowrap">
+            © {new Date().getFullYear()} OrientAI. Hecho en Argentina.
+          </p>
         </div>
       </footer>
     </div>
