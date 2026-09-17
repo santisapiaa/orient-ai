@@ -16,8 +16,13 @@ const geistMono = Geist_Mono({
 const title = "OrientAI — Orientación Vocacional";
 const description = "Test vocacional tipo like/dislike para estudiantes de secundaria, con matching real a carreras y universidades.";
 
+// TODO: cambiar a "https://orientai.com.ar" una vez que el DNS del
+// dominio propio esté propagado (hoy no resuelve). Mientras tanto, si
+// esto apunta al dominio custom pero ese dominio no responde, la
+// imagen de preview social (og:image) no carga en nada compartido
+// desde la URL real de Vercel.
 export const metadata: Metadata = {
-  metadataBase: new URL("https://orientai.com.ar"),
+  metadataBase: new URL("https://orient-ai-phi.vercel.app"),
   title,
   description,
   openGraph: {
