@@ -152,40 +152,30 @@ export default function Home() {
       </section>
 
       {/* Marca */}
-      <section className="max-w-3xl mx-auto px-6 py-20 text-center">
-        <Image
-          src="/logo-horizontal-navy.png"
-          alt="OrientAI — Orientación Vocacional"
-          width={900}
-          height={347}
-          className="h-16 md:h-20 w-auto mx-auto mb-6"
-        />
-        <p className="text-[#1B2A4C]/60 leading-relaxed">
-          OrientAI existe para que ningún estudiante de secundaria tenga que elegir una carrera a ciegas,
-          y para que las universidades encuentren, antes que nadie, a quienes ya las están buscando.
-        </p>
+      <section className="bg-white border-y border-[#1B2A4C]/10">
+        <div className="max-w-3xl mx-auto px-6 py-20 text-center">
+          <Image
+            src="/logo-color-stacked.png"
+            alt="OrientAI — Orientación Vocacional"
+            width={700}
+            height={539}
+            className="h-40 md:h-48 w-auto mx-auto mb-6"
+          />
+          <p className="text-[#1B2A4C]/60 leading-relaxed">
+            OrientAI existe para que ningún estudiante de secundaria tenga que elegir una carrera a ciegas,
+            y para que las universidades encuentren, antes que nadie, a quienes ya las están buscando.
+          </p>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#1B2A4C]/10">
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-8 pb-8">
-            <div>
-              <p className="font-extrabold text-lg text-[#1B2A4C]">OrientAI</p>
-              <p className="text-sm text-[#1B2A4C]/50 mt-1 max-w-xs">
-                Orientación vocacional para estudiantes de secundaria, con matching real a universidades.
-              </p>
-            </div>
-            <nav className="flex gap-6 text-sm font-semibold">
-              <Link href="/estudiantes" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
-                Soy estudiante
-              </Link>
-              <Link href="/universidades" className="text-[#1B2A4C]/70 hover:text-[#1B2A4C] transition-colors">
-                Soy universidad
-              </Link>
-            </nav>
-          </div>
-          <div className="pt-6 border-t border-[#1B2A4C]/10 text-xs text-[#1B2A4C]/40">
+      <footer>
+        <div className="max-w-6xl mx-auto px-6 py-10">
+          <p className="font-extrabold text-lg text-[#1B2A4C]">OrientAI</p>
+          <p className="text-sm text-[#1B2A4C]/50 mt-1 max-w-xs">
+            Orientación vocacional para estudiantes de secundaria, con matching real a universidades.
+          </p>
+          <div className="mt-6 pt-6 border-t border-[#1B2A4C]/10 text-xs text-[#1B2A4C]/40">
             © {new Date().getFullYear()} OrientAI. Hecho en Argentina.
           </div>
         </div>
