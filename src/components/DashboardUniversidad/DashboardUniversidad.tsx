@@ -96,10 +96,12 @@ export default function DashboardUniversidad() {
     if (!selectedId) return;
     setUpdatingPremium(true);
 
-    const { error } = await supabase
-      .from("universities")
-      .update({ is_premium: true })
-      .eq("id", selectedId);
+    // Se llama a una función de Postgres (RPC) en vez de hacer un update()
+    // directo a la tabla: así "anon" solo puede activar is_premium para un id
+    // puntual y no queda con permiso de editar cualquier otra columna.
+    const { error } = await supabase.rpc("activate_university_premium", {
+      target_id: selectedId,
+    });
 
     if (!error) {
       setIsPremium(true);
