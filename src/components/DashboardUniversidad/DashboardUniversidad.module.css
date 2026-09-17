@@ -20,6 +20,7 @@
   flex-direction: column;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  position: relative;
 }
 
 @media (min-width: 768px) {
@@ -67,22 +68,63 @@
   margin-top: 0.25rem;
 }
 
-.sidebarNav {
-  flex: 1;
-  padding: 0 1rem;
+.navPanel {
   display: none;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
 }
 
-.sidebarNav.navOpen {
+.navPanel.navOpen {
   display: flex;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 1rem;
+  width: 16rem;
+  max-width: calc(100vw - 2rem);
+  background-color: #1B2A4C;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  z-index: 50;
+}
+
+@media (min-width: 768px) {
+  .navPanel {
+    display: flex;
+    flex: 1;
+    position: static;
+    width: auto;
+    max-width: none;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+}
+
+.mobileMenuOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+@media (min-width: 768px) {
+  .mobileMenuOverlay {
+    display: none;
+  }
+}
+
+.sidebarNav {
+  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 @media (min-width: 768px) {
   .sidebarNav {
-    display: flex;
+    padding: 0 1rem;
+    margin-top: 1rem;
   }
 }
 
@@ -121,19 +163,17 @@
 }
 
 .sidebarFooter {
-  display: none;
-  padding: 1rem;
-  margin-top: auto;
-  border-top: 1px solid #1e293b;
-}
-
-.sidebarFooter.navOpen {
   display: flex;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @media (min-width: 768px) {
   .sidebarFooter {
-    display: flex;
+    padding: 1rem;
+    margin-top: auto;
+    border-top: 1px solid #1e293b;
   }
 }
 

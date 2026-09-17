@@ -395,50 +395,61 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
           </button>
         </div>
 
-        <nav className={`${styles.sidebarNav} ${mobileMenuOpen ? styles.navOpen : ""}`}>
-          <SidebarButton
-            icon={LayoutDashboard}
-            text="Panel General"
-            active={activeSection === "panel"}
-            onClick={() => { setActiveSection("panel"); setMobileMenuOpen(false); }}
-          />
-          <SidebarButton
-            icon={Users}
-            text="Leads Estudiantiles"
-            active={activeSection === "leads"}
-            disabled={!isPremium}
-            isPremiumOnly={!isPremium}
-            onClick={() => { if (isPremium) { setActiveSection("leads"); setMobileMenuOpen(false); } }}
-          />
-          <SidebarButton
-            icon={Video}
-            text="Gestionar Videos"
-            active={activeSection === "videos"}
-            disabled={!isPremium}
-            isPremiumOnly={!isPremium}
-            onClick={() => { if (isPremium) { setActiveSection("videos"); setMobileMenuOpen(false); } }}
-          />
-          <SidebarButton
-            icon={FileText}
-            text="Planes de Estudio"
-            active={activeSection === "carreras"}
-            onClick={() => { setActiveSection("carreras"); setMobileMenuOpen(false); }}
-          />
-          <SidebarButton
-            icon={Settings}
-            text="Configurar Perfil"
-            active={activeSection === "perfil"}
-            onClick={() => { setActiveSection("perfil"); setMobileMenuOpen(false); }}
-          />
-        </nav>
+        <div className={`${styles.navPanel} ${mobileMenuOpen ? styles.navOpen : ""}`}>
+          <nav className={styles.sidebarNav}>
+            <SidebarButton
+              icon={LayoutDashboard}
+              text="Panel General"
+              active={activeSection === "panel"}
+              onClick={() => { setActiveSection("panel"); setMobileMenuOpen(false); }}
+            />
+            <SidebarButton
+              icon={Users}
+              text="Leads Estudiantiles"
+              active={activeSection === "leads"}
+              disabled={!isPremium}
+              isPremiumOnly={!isPremium}
+              onClick={() => { if (isPremium) { setActiveSection("leads"); setMobileMenuOpen(false); } }}
+            />
+            <SidebarButton
+              icon={Video}
+              text="Gestionar Videos"
+              active={activeSection === "videos"}
+              disabled={!isPremium}
+              isPremiumOnly={!isPremium}
+              onClick={() => { if (isPremium) { setActiveSection("videos"); setMobileMenuOpen(false); } }}
+            />
+            <SidebarButton
+              icon={FileText}
+              text="Planes de Estudio"
+              active={activeSection === "carreras"}
+              onClick={() => { setActiveSection("carreras"); setMobileMenuOpen(false); }}
+            />
+            <SidebarButton
+              icon={Settings}
+              text="Configurar Perfil"
+              active={activeSection === "perfil"}
+              onClick={() => { setActiveSection("perfil"); setMobileMenuOpen(false); }}
+            />
+          </nav>
 
-        <div className={`${styles.sidebarFooter} ${mobileMenuOpen ? styles.navOpen : ""}`} style={{ flexDirection: "column", gap: "0.5rem" }}>
-          <button onClick={onSignOut} style={{ color: "#94a3b8", background: "none", border: "none", textAlign: "left", cursor: "pointer", fontSize: "0.875rem", padding: 0 }}>
-            Cerrar sesión
-          </button>
-          <Link href="/" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }}>← Volver al inicio</Link>
+          <div className={styles.sidebarFooter} style={{ flexDirection: "column", gap: "0.5rem" }}>
+            <button onClick={onSignOut} style={{ color: "#94a3b8", background: "none", border: "none", textAlign: "left", cursor: "pointer", fontSize: "0.875rem", padding: 0 }}>
+              Cerrar sesión
+            </button>
+            <Link href="/" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }}>← Volver al inicio</Link>
+          </div>
         </div>
       </aside>
+
+      {mobileMenuOpen && (
+        <button
+          className={styles.mobileMenuOverlay}
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Cerrar menú"
+          style={{ background: "none", border: "none", cursor: "default", padding: 0 }}
+        />
+      )}
 
       <main className={styles.mainContent}>
         {activeSection === "videos" && isPremium ? (
