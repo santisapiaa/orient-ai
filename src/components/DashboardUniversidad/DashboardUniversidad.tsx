@@ -3,6 +3,17 @@ import { useState, useEffect, type CSSProperties, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
+import {
+  LayoutDashboard,
+  Users,
+  Video,
+  Settings,
+  CheckCircle2,
+  Lock,
+  MessageCircle,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import styles from "./DashboardUniversidad.module.css";
 
@@ -305,13 +316,13 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
 
         <nav className={styles.sidebarNav}>
           <SidebarButton
-            icon="📊"
+            icon={LayoutDashboard}
             text="Panel General"
             active={activeSection === "panel"}
             onClick={() => setActiveSection("panel")}
           />
           <SidebarButton
-            icon="👥"
+            icon={Users}
             text="Leads Estudiantiles"
             active={activeSection === "leads"}
             disabled={!isPremium}
@@ -319,7 +330,7 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             onClick={() => isPremium && setActiveSection("leads")}
           />
           <SidebarButton
-            icon="🎥"
+            icon={Video}
             text="Gestionar Videos"
             active={activeSection === "videos"}
             disabled={!isPremium}
@@ -327,7 +338,7 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             onClick={() => isPremium && setActiveSection("videos")}
           />
           <SidebarButton
-            icon="⚙️"
+            icon={Settings}
             text="Configurar Perfil"
             active={activeSection === "perfil"}
             onClick={() => setActiveSection("perfil")}
@@ -477,11 +488,11 @@ function PanelGeneral({
 
         {!isPremium ? (
           <div style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "0.5rem 1rem", borderRadius: "0.5rem", fontWeight: "bold", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span>⭐</span> Cuenta estándar
+            <Star size={16} /> Cuenta estándar
           </div>
         ) : (
           <div className={styles.premiumActive}>
-            <span>✅</span> Cuenta Premium Activa
+            <CheckCircle2 size={16} /> Cuenta Premium Activa
           </div>
         )}
       </header>
@@ -500,7 +511,7 @@ function PanelGeneral({
 
       {!isPremium ? (
         <div className={styles.paywallContainer}>
-          <span style={{ fontSize: "2.25rem", marginBottom: "1rem", display: "block" }}>🔒</span>
+          <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center", color: "#94a3b8" }}><Lock size={36} strokeWidth={1.5} /></div>
           <h3 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e293b", margin: "0 0 0.5rem 0" }}>Desbloqueá tus leads</h3>
           <p style={{ color: "#475569", marginBottom: "1.5rem" }}>
             Actualmente estás perdiendo estudiantes que buscan tu carrera. Con Premium tu universidad aparece primero en los resultados, podés mostrar videos de tus alumnos y acceder a los datos de contacto.
@@ -544,7 +555,7 @@ function PanelGeneral({
                       {lead.created_at ? new Date(lead.created_at).toLocaleDateString("es-AR") : "-"}
                     </td>
                     <td>
-                      <button style={{ color: "#16a34a", border: "none", background: "none", fontWeight: "bold", cursor: "pointer" }}>💬 Contactar</button>
+                      <button style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#16a34a", border: "none", background: "none", fontWeight: "bold", cursor: "pointer" }}><MessageCircle size={14} /> Contactar</button>
                     </td>
                   </tr>
                 ))}
@@ -738,7 +749,7 @@ function LeadsPanel({ universityId }: { universityId: string }) {
                     {lead.created_at ? new Date(lead.created_at).toLocaleDateString("es-AR") : "-"}
                   </td>
                   <td>
-                    <button style={{ color: "#16a34a", border: "none", background: "none", fontWeight: "bold", cursor: "pointer" }}>💬 Contactar</button>
+                    <button style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "#16a34a", border: "none", background: "none", fontWeight: "bold", cursor: "pointer" }}><MessageCircle size={14} /> Contactar</button>
                   </td>
                 </tr>
               ))}
@@ -824,14 +835,14 @@ function PerfilPanel({
 // --- Helper Components ---
 
 function SidebarButton({
-  icon,
+  icon: Icon,
   text,
   active = false,
   disabled = false,
   isPremiumOnly = false,
   onClick,
 }: {
-  icon: string;
+  icon: LucideIcon;
   text: string;
   active?: boolean;
   disabled?: boolean;
@@ -846,7 +857,7 @@ function SidebarButton({
       className={itemClass}
       style={{ background: "none", border: "none", cursor: disabled ? "not-allowed" : "pointer", width: "100%", textAlign: "left" }}
     >
-      <span>{icon}</span>
+      <Icon size={18} />
       <span style={{ fontWeight: "500", fontSize: "0.875rem" }}>{text}</span>
       {isPremiumOnly && <span className={styles.proBadge}>PRO</span>}
     </button>
@@ -858,7 +869,7 @@ function StatCard({ title, value, trend, subtitle, isBlurred = false }: { title:
     <div className={styles.statCard}>
       {isBlurred && (
         <div className={styles.blurredOverlay}>
-          <span style={{ fontSize: "1.5rem" }}>🔒</span>
+          <Lock size={24} />
           <span style={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase" }}>Premium</span>
         </div>
       )}

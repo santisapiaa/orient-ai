@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Smartphone, GraduationCap, Code2, Hand, Target } from "lucide-react";
 
 export default function Home() {
   return (
@@ -44,13 +45,13 @@ export default function Home() {
                 href="/estudiantes"
                 className="inline-flex items-center justify-center gap-2 bg-[#2AAE8A] hover:bg-[#249478] text-white font-bold rounded-xl px-6 py-4 transition-colors"
               >
-                📱 Soy estudiante — hacer el test
+                <Smartphone size={20} /> Soy estudiante — hacer el test
               </Link>
               <Link
                 href="/universidades"
                 className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold rounded-xl px-6 py-4 transition-colors"
               >
-                🎓 Soy universidad
+                <GraduationCap size={20} /> Soy universidad
               </Link>
             </div>
           </div>
@@ -58,7 +59,7 @@ export default function Home() {
           <div className="flex justify-center">
             <div className="w-64 rounded-[2.5rem] border-[10px] border-white/15 bg-white/5 p-4 shadow-2xl">
               <div className="rounded-2xl bg-white text-[#1B2A4C] p-5 text-center shadow-lg">
-                <div className="text-4xl mb-3">💻</div>
+                <div className="mb-3 flex justify-center"><Code2 size={40} strokeWidth={1.5} /></div>
                 <p className="font-bold text-sm">Diseñar interfaces y programar aplicaciones</p>
                 <div className="flex justify-between mt-6 text-xs font-bold opacity-60">
                   <span>← Paso</span>
@@ -80,23 +81,23 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
-              icon: "👆",
+              icon: Hand,
               title: "1. Deslizá tus gustos",
               text: "Like o dislike a situaciones cotidianas, como en cualquier app que ya usás.",
             },
             {
-              icon: "🎯",
+              icon: Target,
               title: "2. Descubrí tu perfil",
               text: "En minutos, un mix de las dos áreas que más te representan: Tecnología, Salud, Negocios y más.",
             },
             {
-              icon: "🎓",
+              icon: GraduationCap,
               title: "3. Matcheá con universidades",
               text: "Carreras y facultades reales, cerca tuyo, con datos de demanda laboral y salario.",
             },
           ].map((step) => (
             <div key={step.title} className="bg-white rounded-2xl border border-[#1B2A4C]/10 p-8 shadow-sm">
-              <div className="text-3xl mb-4">{step.icon}</div>
+              <div className="mb-4 text-[#2AAE8A]"><step.icon size={32} strokeWidth={1.5} /></div>
               <h3 className="font-bold text-lg mb-2">{step.title}</h3>
               <p className="text-sm text-[#1B2A4C]/60 leading-relaxed">{step.text}</p>
             </div>

@@ -3,6 +3,28 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
+import {
+  TrendingUp,
+  Code2,
+  HeartPulse,
+  Scale,
+  Palette,
+  Users as UsersIcon,
+  Bot,
+  Brain,
+  Newspaper,
+  Clapperboard,
+  ClipboardList,
+  UserRound,
+  Landmark,
+  Target,
+  SearchX,
+  MessageCircle,
+  X as XIcon,
+  CheckCircle2,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import styles from "./AppEstudiante.module.css";
 
@@ -47,17 +69,17 @@ type MicroCase = {
 };
 
 // 1. Ampliamos las preguntas a 10 para hacer el test más específico
-const QUESTIONS = [
-  { id: 1, text: "Analizar datos financieros y mercado bursátil", icon: "📈", category: "Negocios" },
-  { id: 2, text: "Diseñar interfaces y programar aplicaciones", icon: "💻", category: "Tecnología" },
-  { id: 3, text: "Entender el cuerpo humano y curar enfermedades", icon: "🏥", category: "Salud" },
-  { id: 4, text: "Debatir sobre leyes, política y sociedad", icon: "⚖️", category: "Ciencias Sociales" },
-  { id: 5, text: "Crear espacios, dibujar y diseñar marcas", icon: "🎨", category: "Arte y Diseño" },
-  { id: 6, text: "Liderar equipos de trabajo y emprender", icon: "👔", category: "Negocios" },
-  { id: 7, text: "Desarrollar inteligencia artificial y robótica", icon: "🤖", category: "Tecnología" },
-  { id: 8, text: "Investigar terapias y bienestar mental", icon: "🧠", category: "Salud" },
-  { id: 9, text: "Escribir artículos y comunicar noticias", icon: "📰", category: "Ciencias Sociales" },
-  { id: 10, text: "Dirigir cine, fotografía o componer música", icon: "🎬", category: "Arte y Diseño" },
+const QUESTIONS: { id: number; text: string; icon: LucideIcon; category: string }[] = [
+  { id: 1, text: "Analizar datos financieros y mercado bursátil", icon: TrendingUp, category: "Negocios" },
+  { id: 2, text: "Diseñar interfaces y programar aplicaciones", icon: Code2, category: "Tecnología" },
+  { id: 3, text: "Entender el cuerpo humano y curar enfermedades", icon: HeartPulse, category: "Salud" },
+  { id: 4, text: "Debatir sobre leyes, política y sociedad", icon: Scale, category: "Ciencias Sociales" },
+  { id: 5, text: "Crear espacios, dibujar y diseñar marcas", icon: Palette, category: "Arte y Diseño" },
+  { id: 6, text: "Liderar equipos de trabajo y emprender", icon: UsersIcon, category: "Negocios" },
+  { id: 7, text: "Desarrollar inteligencia artificial y robótica", icon: Bot, category: "Tecnología" },
+  { id: 8, text: "Investigar terapias y bienestar mental", icon: Brain, category: "Salud" },
+  { id: 9, text: "Escribir artículos y comunicar noticias", icon: Newspaper, category: "Ciencias Sociales" },
+  { id: 10, text: "Dirigir cine, fotografía o componer música", icon: Clapperboard, category: "Arte y Diseño" },
 ];
 
 export default function AppEstudiante() {
@@ -106,15 +128,15 @@ export default function AppEstudiante() {
 
         <div className={styles.bottomNav}>
           <button onClick={() => setActiveTab("test")} className={`${styles.navButton} ${activeTab === "test" ? styles.navButtonActive : ""}`}>
-            <div className={styles.navIcon}>🎮</div>
+            <div className={styles.navIcon}><ClipboardList size={22} /></div>
             <span className={styles.navText}>Test</span>
           </button>
           <button onClick={() => setActiveTab("results")} className={`${styles.navButton} ${activeTab === "results" ? styles.navButtonActive : ""}`}>
-            <div className={styles.navIcon}>📊</div>
+            <div className={styles.navIcon}><UserRound size={22} /></div>
             <span className={styles.navText}>Mi Perfil</span>
           </button>
           <button onClick={() => setActiveTab("directory")} className={`${styles.navButton} ${activeTab === "directory" || activeTab === "location" ? styles.navButtonActive : ""}`}>
-            <div className={styles.navIcon}>🏛️</div>
+            <div className={styles.navIcon}><Landmark size={22} /></div>
             <span className={styles.navText}>Opciones</span>
           </button>
         </div>
@@ -224,7 +246,7 @@ function TestView({ onComplete }: { onComplete: (categories: string[]) => void }
               onDragEnd={handleDragEnd}
               whileDrag={{ scale: 1.05, rotate: leaveX ? leaveX / 50 : 0 }}
             >
-              <div style={{fontSize: '4rem', marginBottom: '1.5rem', pointerEvents: 'none'}}>{currentQuestion.icon}</div>
+              <div style={{marginBottom: '1.5rem', pointerEvents: 'none', color: '#1B2A4C'}}><currentQuestion.icon size={64} strokeWidth={1.5} /></div>
               <h3 style={{fontSize: '1.25rem', fontWeight: '600', color: '#1B2A4C', pointerEvents: 'none'}}>{currentQuestion.text}</h3>
               
               <div style={{position: 'absolute', bottom: '1.5rem', left: '0', right: '0', display: 'flex', justifyContent: 'space-around', opacity: '0.5', padding: '0 2rem', pointerEvents: 'none'}}>
@@ -250,7 +272,7 @@ function ResultsView({ profile, onContinue }: { profile: string[], onContinue: (
           <h2 style={{fontSize: '1.75rem', fontWeight: '800', lineHeight: 1.2, margin: 0}}>Tu perfil multidisciplinario</h2>
         </div>
         <motion.div className={styles.resultBox} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", bounce: 0.5 }}>
-          <div style={{fontSize: '3.75rem', marginBottom: '1rem'}}>🎯</div>
+          <div style={{marginBottom: '1rem', display: 'flex', justifyContent: 'center'}}><Target size={60} strokeWidth={1.5} /></div>
           <p style={{fontSize: '1rem', fontWeight: '500', margin: '0 0 0.5rem 0'}}>Eres un mix perfecto de:</p>
           <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#fde047', margin: 0}}>{profileText}</h3>
         </motion.div>
@@ -422,7 +444,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
 
   if (universities.length === 0) {
     return <div className={styles.viewContainer} style={{justifyContent: 'center', alignItems: 'center', textAlign: 'center'}}>
-      <span style={{fontSize: '3rem', marginBottom: '1rem'}}>😢</span>
+      <span style={{marginBottom: '1rem', color: '#1B2A4C', opacity: 0.5}}><SearchX size={48} strokeWidth={1.5} /></span>
       <h3 style={{fontWeight: 'bold', color: '#1B2A4C'}}>No hay resultados</h3>
       <p style={{fontSize: '0.875rem', color: 'rgba(18, 77, 65, 0.7)'}}>Aún no hemos cargado universidades en tu zona para estas categorías.</p>
     </div>;
@@ -487,8 +509,8 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
                 </div>
 
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem'}}>
-                  <button onClick={() => openMicroCase(career.name, career.category)} style={{fontSize: '0.65rem', fontWeight: 'bold', color: 'white', backgroundColor: '#2AAE8A', padding: '0.25rem 0.5rem', borderRadius: '9999px', border: 'none', cursor: 'pointer'}}>
-                    🤖 Micro-Caso AI
+                  <button onClick={() => openMicroCase(career.name, career.category)} style={{display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.65rem', fontWeight: 'bold', color: 'white', backgroundColor: '#2AAE8A', padding: '0.25rem 0.5rem', borderRadius: '9999px', border: 'none', cursor: 'pointer'}}>
+                    <Bot size={12} /> Micro-Caso AI
                   </button>
                   <button onClick={() => downloadStudyPlan(career.name)} style={{fontSize: '0.65rem', color: 'rgba(18, 77, 65, 0.7)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
                     Plan de Estudios
@@ -504,7 +526,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
             disabled={contactingId === uni.id}
             onClick={() => contactAdmissions(uni)}
           >
-            💬 {contactingId === uni.id ? 'Enviando...' : 'Contactar Admisiones'}
+            <MessageCircle size={16} /> {contactingId === uni.id ? 'Enviando...' : 'Contactar Admisiones'}
           </button>
         </div>
       ))}
@@ -520,15 +542,15 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
         <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(18, 77, 65, 0.9)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'}}>
           <motion.div initial={{scale: 0.9, opacity: 0}} animate={{scale: 1, opacity: 1}} style={{backgroundColor: 'white', borderRadius: '1.5rem', padding: '1.5rem', border: '4px solid #2AAE8A', width: '100%', position: 'relative'}}>
             
-            <button 
-              onClick={() => setActiveCase(null)} 
-              style={{position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', fontSize: '1.25rem', color: '#94a3b8', cursor: 'pointer', padding: '0.25rem'}}
+            <button
+              onClick={() => setActiveCase(null)}
+              style={{position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '0.25rem', display: 'flex'}}
               aria-label="Cerrar"
             >
-              ✖
+              <XIcon size={20} />
             </button>
 
-            <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>🤖</div>
+            <div style={{marginBottom: '0.5rem', color: '#2AAE8A'}}><Bot size={32} strokeWidth={1.5} /></div>
             <h3 style={{fontSize: '1.25rem', fontWeight: 'bold', color: '#1B2A4C', margin: '0 0 1rem 0'}}>Simulador OrientAI</h3>
             
             {!caseResult ? (
@@ -547,8 +569,8 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
               </>
             ) : (
               <motion.div initial={{opacity: 0}} animate={{opacity: 1}}>
-                <div style={{fontSize: '3rem', textAlign: 'center', marginBottom: '1rem'}}>
-                  {caseResult === activeCase.correct ? '✅' : '❌'}
+                <div style={{display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: caseResult === activeCase.correct ? '#16a34a' : '#dc2626'}}>
+                  {caseResult === activeCase.correct ? <CheckCircle2 size={48} /> : <XCircle size={48} />}
                 </div>
                 <h4 style={{textAlign: 'center', color: caseResult === activeCase.correct ? '#16a34a' : '#dc2626', marginBottom: '1rem'}}>
                   {caseResult === activeCase.correct ? '¡Decisión Correcta!' : 'Eso no salió muy bien...'}
