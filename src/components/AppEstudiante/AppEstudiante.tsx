@@ -16,6 +16,14 @@ type Career = {
   work_mode: string | null;
 };
 
+type UniversityVideo = {
+  id: string;
+  video_url: string;
+  author_name: string;
+  author_role: "profesional" | "egresado" | "alumno_actual";
+  caption: string | null;
+};
+
 type University = {
   id: string;
   name: string;
@@ -25,6 +33,7 @@ type University = {
   video_text: string | null;
   author_handle: string | null;
   careers: Career[];
+  university_videos: UniversityVideo[];
 };
 
 type MicroCase = {
@@ -106,6 +115,29 @@ export default function AppEstudiante() {
       </div>
     </div>
   );
+}
+
+function getYouTubeEmbedUrl(rawUrl: string): string | null {
+  try {
+    const url = new URL(rawUrl);
+    if (url.hostname.includes("youtu.be")) {
+      return `https://www.youtube.com/embed/${url.pathname.slice(1)}`;
+    }
+    if (url.hostname.includes("youtube.com")) {
+      const videoId = url.searchParams.get("v");
+      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+      if (url.pathname.startsWith("/embed/")) return rawUrl;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function videoRoleLabel(role: UniversityVideo["author_role"]) {
+  if (role === "profesional") return "Profesional";
+  if (role === "egresado") return "Ex-alumno/a";
+  return "Alumno/a actual";
 }
 
 // --- Sub-views ---
@@ -315,10 +347,12 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
 
       const { data, error } = await supabase
         .from('universities')
-        .select('id, name, city, is_premium, description, video_text, author_handle, careers!inner(id, name, category, duration, badge, market_demand, avg_salary, work_mode)')
+        .select('id, name, city, is_premium, description, video_text, author_handle, careers!inner(id, name, category, duration, badge, market_demand, avg_salary, work_mode), university_videos(id, video_url, author_name, author_role, caption)')
         .ilike('city', '%' + searchLocation + '%')
-        .in('careers.category', profile); 
-      
+        .in('careers.category', profile)
+        // Las universidades Premium aparecen primero en los resultados.
+        .order('is_premium', { ascending: false });
+
       if (!error && data) {
         setUniversities(data);
       }
@@ -402,7 +436,38 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
             <h3 style={{fontWeight: 'bold', color: '#124D41', margin: '0 0 0.25rem 0', fontSize: '1rem'}}>{uni.name}</h3>
             {uni.description && <p style={{fontSize: '0.75rem', color: 'rgba(18, 77, 65, 0.7)', margin: 0}}>{uni.description}</p>}
           </div>
-          
+
+          {uni.is_premium && uni.university_videos.length > 0 && (
+            <div style={{marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+              {uni.university_videos.map((video) => {
+                const embedUrl = getYouTubeEmbedUrl(video.video_url);
+                return (
+                  <div key={video.id} style={{backgroundColor: '#F2FFFB', borderRadius: '0.75rem', padding: '0.5rem', border: '1px solid #CFF7EA'}}>
+                    {embedUrl ? (
+                      <div style={{position: 'relative', width: '100%', paddingTop: '56.25%', borderRadius: '0.5rem', overflow: 'hidden', marginBottom: '0.5rem'}}>
+                        <iframe
+                          src={embedUrl}
+                          title={`Video de ${video.author_name}`}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none'}}
+                        />
+                      </div>
+                    ) : (
+                      <a href={video.video_url} target="_blank" rel="noreferrer" style={{display: 'block', fontSize: '0.75rem', fontWeight: 'bold', color: '#2AAE8A', marginBottom: '0.5rem'}}>
+                        ▶ Ver video (se abre en otra pestaña)
+                      </a>
+                    )}
+                    <p style={{fontSize: '0.7rem', color: '#124D41', margin: 0}}>
+                      <b>{video.author_name}</b> · {videoRoleLabel(video.author_role)}
+                      {video.caption && <span style={{opacity: 0.7}}> — {video.caption}</span>}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem'}}>
             {uni.careers.map((career) => {
               return (
