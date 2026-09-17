@@ -12,6 +12,7 @@ import {
   Lock,
   MessageCircle,
   Star,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -42,6 +43,13 @@ type VideoRow = {
   author_name: string;
   author_role: "profesional" | "egresado" | "alumno_actual";
   caption: string | null;
+};
+
+type CareerRow = {
+  id: string;
+  name: string;
+  category: string;
+  study_plan_url: string | null;
 };
 
 const inputStyle: CSSProperties = {
@@ -240,7 +248,7 @@ function AuthView() {
 function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignOut: () => void }) {
   const [myUniversity, setMyUniversity] = useState<MyUniversity | null>(null);
   const [loadingUniversity, setLoadingUniversity] = useState(true);
-  const [activeSection, setActiveSection] = useState<"panel" | "videos" | "leads" | "perfil">("panel");
+  const [activeSection, setActiveSection] = useState<"panel" | "videos" | "leads" | "perfil" | "carreras">("panel");
   const [leadsCount, setLeadsCount] = useState(0);
   const [recentLeads, setRecentLeads] = useState<LeadRow[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(true);
@@ -338,6 +346,12 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             onClick={() => isPremium && setActiveSection("videos")}
           />
           <SidebarButton
+            icon={FileText}
+            text="Planes de Estudio"
+            active={activeSection === "carreras"}
+            onClick={() => setActiveSection("carreras")}
+          />
+          <SidebarButton
             icon={Settings}
             text="Configurar Perfil"
             active={activeSection === "perfil"}
@@ -364,6 +378,8 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             description={myUniversity.description}
             onUpdated={(newDescription) => setMyUniversity({ ...myUniversity, description: newDescription })}
           />
+        ) : activeSection === "carreras" ? (
+          <CareersPanel universityId={myUniversity.id} />
         ) : (
           <PanelGeneral
             universityName={myUniversity.name}
@@ -828,6 +844,102 @@ function PerfilPanel({
           {submitting ? "Guardando..." : "Guardar cambios"}
         </button>
       </form>
+    </div>
+  );
+}
+
+function CareersPanel({ universityId }: { universityId: string }) {
+  const [careers, setCareers] = useState<CareerRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [errorId, setErrorId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCareers() {
+      setLoading(true);
+      const { data } = await supabase
+        .from("careers")
+        .select("id, name, category, study_plan_url")
+        .eq("university_id", universityId)
+        .order("name");
+      if (!cancelled) {
+        setCareers(data ?? []);
+        setDrafts(Object.fromEntries((data ?? []).map((c) => [c.id, c.study_plan_url ?? ""])));
+        setLoading(false);
+      }
+    }
+
+    loadCareers();
+    return () => {
+      cancelled = true;
+    };
+  }, [universityId]);
+
+  const handleSave = async (careerId: string) => {
+    setErrorId(null);
+    setSavingId(careerId);
+
+    const { error } = await supabase.rpc("update_career_study_plan", {
+      target_career_id: careerId,
+      new_url: drafts[careerId] || null,
+    });
+
+    setSavingId(null);
+    if (error) {
+      setErrorId(careerId);
+      console.error("No se pudo guardar el plan de estudios:", error.message);
+      return;
+    }
+
+    setCareers((prev) => prev.map((c) => (c.id === careerId ? { ...c, study_plan_url: drafts[careerId] || null } : c)));
+    setSavedId(careerId);
+    setTimeout(() => setSavedId(null), 2000);
+  };
+
+  return (
+    <div>
+      <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e293b", marginBottom: "0.5rem" }}>Planes de Estudio</h2>
+      <p style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+        Pegá el link al PDF del plan de estudios de cada carrera (puede ser de tu propia web o de Google Drive). Los estudiantes lo van a poder descargar desde &quot;Plan de Estudios&quot; en la app.
+      </p>
+
+      {loading ? (
+        <p style={{ color: "#64748b" }}>Cargando carreras...</p>
+      ) : careers.length === 0 ? (
+        <p style={{ color: "#64748b" }}>Todavía no hay carreras cargadas para tu universidad.</p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {careers.map((career) => (
+            <div key={career.id} className={styles.dataTableContainer} style={{ padding: "1rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <p style={{ margin: 0, fontWeight: "bold", color: "#1e293b", fontSize: "0.875rem" }}>
+                {career.name} <span style={{ fontWeight: "normal", color: "#64748b" }}>· {career.category}</span>
+              </p>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                <input
+                  type="url"
+                  placeholder="Link al PDF del plan de estudios"
+                  value={drafts[career.id] ?? ""}
+                  onChange={(e) => setDrafts((prev) => ({ ...prev, [career.id]: e.target.value }))}
+                  style={{ ...inputStyle, flex: 1, minWidth: "16rem" }}
+                />
+                <button
+                  onClick={() => handleSave(career.id)}
+                  disabled={savingId === career.id}
+                  style={{ backgroundColor: "#2AAE8A", color: "white", padding: "0 1.25rem", borderRadius: "0.5rem", fontWeight: "bold", border: "none", cursor: "pointer", opacity: savingId === career.id ? 0.7 : 1 }}
+                >
+                  {savingId === career.id ? "Guardando..." : "Guardar"}
+                </button>
+              </div>
+              {errorId === career.id && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: 0 }}>No se pudo guardar. Probá de nuevo.</p>}
+              {savedId === career.id && <p style={{ color: "#16a34a", fontSize: "0.8rem", margin: 0 }}>Guardado.</p>}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -37,6 +37,7 @@ type Career = {
   market_demand: string | null;
   avg_salary: string | null;
   work_mode: string | null;
+  study_plan_url: string | null;
 };
 
 type UniversityVideo = {
@@ -365,8 +366,12 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
     showToast(`¡Listo! ${uni.name} va a contactarte por WhatsApp.`);
   };
 
-  const downloadStudyPlan = (careerName: string) => {
-    showToast(`Plan de estudios de "${careerName}" enviado (simulado).`);
+  const downloadStudyPlan = (career: Career) => {
+    if (!career.study_plan_url) {
+      showToast(`${career.name} todavía no cargó su plan de estudios.`);
+      return;
+    }
+    window.open(career.study_plan_url, "_blank", "noopener,noreferrer");
   };
 
   useEffect(() => {
@@ -375,7 +380,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
 
       const { data, error } = await supabase
         .from('universities')
-        .select('id, name, city, is_premium, description, video_text, author_handle, careers!inner(id, name, category, duration, badge, market_demand, avg_salary, work_mode), university_videos(id, video_url, author_name, author_role, caption)')
+        .select('id, name, city, is_premium, description, video_text, author_handle, careers!inner(id, name, category, duration, badge, market_demand, avg_salary, work_mode, study_plan_url), university_videos(id, video_url, author_name, author_role, caption)')
         .ilike('city', '%' + searchLocation + '%')
         .in('careers.category', profile)
         // Las universidades Premium aparecen primero en los resultados.
@@ -512,7 +517,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
                   <button onClick={() => openMicroCase(career.name, career.category)} style={{display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.65rem', fontWeight: 'bold', color: 'white', backgroundColor: '#2AAE8A', padding: '0.25rem 0.5rem', borderRadius: '9999px', border: 'none', cursor: 'pointer'}}>
                     <Bot size={12} /> Micro-Caso AI
                   </button>
-                  <button onClick={() => downloadStudyPlan(career.name)} style={{fontSize: '0.65rem', color: 'rgba(18, 77, 65, 0.7)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
+                  <button onClick={() => downloadStudyPlan(career)} style={{fontSize: '0.65rem', color: 'rgba(18, 77, 65, 0.7)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>
                     Plan de Estudios
                   </button>
                 </div>
