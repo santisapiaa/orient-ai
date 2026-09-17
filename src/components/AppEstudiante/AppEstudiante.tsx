@@ -507,13 +507,32 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
 
       if (!error && data) {
         setUniversities(data);
+
+        // Registramos una "aparición" por cada universidad que efectivamente
+        // se le mostró al estudiante en sus resultados (no bloqueante: si
+        // falla, no le rompe la experiencia al estudiante).
+        if (data.length > 0) {
+          supabase
+            .from('university_events')
+            .insert(data.map((uni) => ({ university_id: uni.id, event_type: 'impression' })))
+            .then(({ error: eventError }) => {
+              if (eventError) console.error('No se pudo registrar la aparición:', eventError.message);
+            });
+        }
       }
       setLoading(false);
     }
     fetchData();
   }, [profile, location]);
 
-  const openMicroCase = (careerName: string, category: string) => {
+  const openMicroCase = (universityId: string, careerName: string, category: string) => {
+    supabase
+      .from('university_events')
+      .insert([{ university_id: universityId, event_type: 'click' }])
+      .then(({ error: eventError }) => {
+        if (eventError) console.error('No se pudo registrar el click:', eventError.message);
+      });
+
     setCaseResult(null);
     let scenario: Omit<MicroCase, "career"> = { text: "", optionA: "", optionB: "", correct: "A", explanation: "" };
     
@@ -638,7 +657,7 @@ function DirectoryView({ profile, location }: { profile: string[], location: str
                 </div>
 
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem'}}>
-                  <button onClick={() => openMicroCase(career.name, career.category)} style={{display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.65rem', fontWeight: 'bold', color: 'white', backgroundColor: '#2AAE8A', padding: '0.25rem 0.5rem', borderRadius: '9999px', border: 'none', cursor: 'pointer'}}>
+                  <button onClick={() => openMicroCase(uni.id, career.name, career.category)} style={{display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.65rem', fontWeight: 'bold', color: 'white', backgroundColor: '#2AAE8A', padding: '0.25rem 0.5rem', borderRadius: '9999px', border: 'none', cursor: 'pointer'}}>
                     <Bot size={12} /> Micro-Caso AI
                   </button>
                   <button onClick={() => downloadStudyPlan(career)} style={{fontSize: '0.65rem', color: 'rgba(18, 77, 65, 0.7)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline'}}>

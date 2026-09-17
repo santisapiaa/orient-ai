@@ -311,6 +311,9 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
   const [loadingLeads, setLoadingLeads] = useState(true);
   const [claimReloadKey, setClaimReloadKey] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [impressionsCount, setImpressionsCount] = useState(0);
+  const [clicksCount, setClicksCount] = useState(0);
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
 
   useEffect(() => {
     async function loadMyUniversity() {
@@ -350,6 +353,33 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
       setLoadingLeads(false);
     }
     loadLeads();
+  }, [myUniversity]);
+
+  useEffect(() => {
+    if (!myUniversity) return;
+
+    async function loadMetrics() {
+      if (!myUniversity) return;
+      setLoadingMetrics(true);
+
+      const [{ count: impressions }, { count: clicks }] = await Promise.all([
+        supabase
+          .from("university_events")
+          .select("id", { count: "exact", head: true })
+          .eq("university_id", myUniversity.id)
+          .eq("event_type", "impression"),
+        supabase
+          .from("university_events")
+          .select("id", { count: "exact", head: true })
+          .eq("university_id", myUniversity.id)
+          .eq("event_type", "click"),
+      ]);
+
+      setImpressionsCount(impressions ?? 0);
+      setClicksCount(clicks ?? 0);
+      setLoadingMetrics(false);
+    }
+    loadMetrics();
   }, [myUniversity]);
 
   if (loadingUniversity) {
@@ -471,6 +501,9 @@ function AuthenticatedDashboard({ userId, onSignOut }: { userId: string; onSignO
             leadsCount={leadsCount}
             loadingLeads={loadingLeads}
             recentLeads={recentLeads}
+            impressionsCount={impressionsCount}
+            clicksCount={clicksCount}
+            loadingMetrics={loadingMetrics}
           />
         )}
       </main>
@@ -627,12 +660,18 @@ function PanelGeneral({
   leadsCount,
   loadingLeads,
   recentLeads,
+  impressionsCount,
+  clicksCount,
+  loadingMetrics,
 }: {
   universityName: string;
   isPremium: boolean;
   leadsCount: number;
   loadingLeads: boolean;
   recentLeads: LeadRow[];
+  impressionsCount: number;
+  clicksCount: number;
+  loadingMetrics: boolean;
 }) {
   return (
     <>
@@ -654,8 +693,18 @@ function PanelGeneral({
       </header>
 
       <div className={styles.statsGrid}>
-        <StatCard title="Apariciones en Resultados" value="12,450" trend="+15%" subtitle="Veces que tu perfil básico fue visto (dato de demo, no medido aún)" />
-        <StatCard title="Clicks en Perfil" value="843" trend="+5%" subtitle="Estudiantes interesados en tus carreras (dato de demo, no medido aún)" />
+        <StatCard
+          title="Apariciones en Resultados"
+          value={loadingMetrics ? "..." : impressionsCount.toLocaleString("es-AR")}
+          trend=""
+          subtitle="Veces que tu perfil apareció en resultados de estudiantes"
+        />
+        <StatCard
+          title="Clicks en Perfil"
+          value={loadingMetrics ? "..." : clicksCount.toLocaleString("es-AR")}
+          trend=""
+          subtitle="Estudiantes que abrieron un Micro-Caso de tus carreras"
+        />
         <StatCard
           title="Leads de WhatsApp"
           value={isPremium ? (loadingLeads ? "..." : String(leadsCount)) : "Bloqueado"}
