@@ -695,29 +695,31 @@ function PanelGeneral({
         )}
       </header>
 
-      <div className={styles.statsGrid}>
-        <StatCard
-          title="Apariciones en Resultados"
-          value={loadingMetrics ? "..." : impressionsCount.toLocaleString("es-AR")}
-          trend=""
-          subtitle="Veces que tu perfil apareció en resultados de estudiantes"
-        />
-        <StatCard
-          title="Clicks en Perfil"
-          value={loadingMetrics ? "..." : clicksCount.toLocaleString("es-AR")}
-          trend=""
-          subtitle="Estudiantes que abrieron un Micro-Caso de tus carreras"
-        />
-        <StatCard
-          title="Leads de WhatsApp"
-          value={isPremium ? (loadingLeads ? "..." : String(leadsCount)) : "Bloqueado"}
-          trend={isPremium && leadsCount > 0 ? "Real" : ""}
-          subtitle="Contactos directos generados desde la app"
-          isBlurred={!isPremium}
-        />
-      </div>
+      <div className={styles.overviewGrid}>
+        <TrendChart universityId={universityId} isPremium={isPremium} />
 
-      <TrendChart universityId={universityId} isPremium={isPremium} />
+        <div className={styles.statsColumn}>
+          <StatCard
+            title="Apariciones en Resultados"
+            value={loadingMetrics ? "..." : impressionsCount.toLocaleString("es-AR")}
+            trend=""
+            subtitle="Veces que tu perfil apareció en resultados de estudiantes"
+          />
+          <StatCard
+            title="Clicks en Perfil"
+            value={loadingMetrics ? "..." : clicksCount.toLocaleString("es-AR")}
+            trend=""
+            subtitle="Estudiantes que abrieron un Micro-Caso de tus carreras"
+          />
+          <StatCard
+            title="Leads de WhatsApp"
+            value={isPremium ? (loadingLeads ? "..." : String(leadsCount)) : "Bloqueado"}
+            trend={isPremium && leadsCount > 0 ? "Real" : ""}
+            subtitle="Contactos directos generados desde la app"
+            isBlurred={!isPremium}
+          />
+        </div>
+      </div>
 
       {!isPremium ? (
         <div className={styles.paywallContainer}>
@@ -854,14 +856,14 @@ function TrendChart({ universityId, isPremium }: { universityId: string; isPremi
 
   if (!days) {
     return (
-      <div className={styles.dataTableContainer} style={{ padding: "1.5rem", marginBottom: "2rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b" }}>
+      <div className={styles.dataTableContainer} style={{ padding: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b" }}>
         <Spinner size={16} color="#64748b" /> Cargando tendencia...
       </div>
     );
   }
 
   const width = 700;
-  const height = 260;
+  const height = 220;
   const padLeft = 44;
   const padRight = 16;
   const padTop = 16;
@@ -905,7 +907,7 @@ function TrendChart({ universityId, isPremium }: { universityId: string; isPremi
   const tooltipFlip = hoverIndex !== null && hoverIndex > (days.length - 1) / 2;
 
   return (
-    <div className={styles.dataTableContainer} style={{ padding: "1.5rem", marginBottom: "2rem" }}>
+    <div className={styles.dataTableContainer} style={{ padding: "1.5rem" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
         <h3 style={{ margin: 0, fontWeight: "bold", color: "#1e293b", fontSize: "1rem" }}>Tendencia (últimos 30 días)</h3>
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
