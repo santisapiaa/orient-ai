@@ -1,0 +1,16 @@
+{
+  "name": "OrientAI — Test Vocacional",
+  "short_name": "OrientAI",
+  "description": "Test vocacional tipo like/dislike para descubrir tu perfil y matchear con carreras y universidades reales.",
+  "start_url": "/estudiantes",
+  "scope": "/estudiantes",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "es-AR",
+  "background_color": "#ffffff",
+  "theme_color": "#1B2A4C",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

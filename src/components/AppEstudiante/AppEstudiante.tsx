@@ -10,6 +10,7 @@ import LocationView from "./LocationView";
 import ResultsView from "./ResultsView";
 import TestView from "./TestView";
 import type { LikedItem } from "./types";
+import { useServiceWorker } from "./useServiceWorker";
 
 const FLOW_STORAGE_KEY = "orientai_student_flow";
 
@@ -19,6 +20,8 @@ export default function AppEstudiante() {
   const [userLikedItems, setUserLikedItems] = useState<LikedItem[]>([]);
   const [userLocation, setUserLocation] = useState<string>("Buenos Aires");
   const [hydrated, setHydrated] = useState(false);
+
+  useServiceWorker();
 
   // Restaurar donde se habia quedado el estudiante (si hay algo guardado)
   // despues de la hidratacion, para no perder el progreso al refrescar.
